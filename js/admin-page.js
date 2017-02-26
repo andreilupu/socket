@@ -68390,6 +68390,8 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require("react");
@@ -68435,13 +68437,15 @@ var AdminOptionsDashboard = function (_React$Component) {
 		};
 
 		_this.state = adminoptions.state;
+
+		_this.handleChange = _this.handleChange.bind(_this);
 		return _this;
 	}
 
 	_createClass(AdminOptionsDashboard, [{
 		key: "render",
 		value: function render() {
-
+			var component = this;
 			return _react2.default.createElement(
 				"div",
 				null,
@@ -68449,14 +68453,14 @@ var AdminOptionsDashboard = function (_React$Component) {
 					_semanticUiReact.Grid,
 					null,
 					Object.keys(adminoptions.config).map(function (grid_key) {
-
 						if (typeof grid_key === "undefined") {
 							return false;
 						}
 
 						var section_config = adminoptions.config[grid_key];
 
-						var sizes = section_config.sizes;
+						// default grid sizes, doc this
+						var sizes = _extends({ computer: 8, tablet: 16 }, section_config.sizes);
 
 						var section = _react2.default.createElement(
 							_semanticUiReact.Grid.Column,
@@ -68482,7 +68486,7 @@ var AdminOptionsDashboard = function (_React$Component) {
 														null,
 														field.label
 													),
-													_react2.default.createElement("input", { placeholder: "First Name" })
+													_react2.default.createElement("input", { placeholder: "First Name", onInput: component.handleChange })
 												);
 												break;
 											}
@@ -68497,7 +68501,7 @@ var AdminOptionsDashboard = function (_React$Component) {
 														null,
 														field.label
 													),
-													_react2.default.createElement(_semanticUiReact.Checkbox, { placeholder: "First Name" })
+													_react2.default.createElement(_semanticUiReact.Checkbox, { placeholder: "First Name", onChange: component.handleChange })
 												);
 												break;
 											}
@@ -68512,7 +68516,7 @@ var AdminOptionsDashboard = function (_React$Component) {
 														null,
 														field.label
 													),
-													_react2.default.createElement(_semanticUiReact.Checkbox, { toggle: true, placeholder: "First Name" })
+													_react2.default.createElement(_semanticUiReact.Checkbox, { toggle: true, placeholder: "First Name", onChange: component.handleChange })
 												);
 												break;
 											}
@@ -68537,6 +68541,12 @@ var AdminOptionsDashboard = function (_React$Component) {
 			var e = document.createElement('div');
 			e.innerHTML = input;
 			return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+		}
+	}, {
+		key: "handleChange",
+		value: function handleChange(e) {
+
+			console.debug(e);
 		}
 	}, {
 		key: "update_local_state",

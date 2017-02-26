@@ -30,22 +30,32 @@ add_filter( 'adminoptions_config', function( $config ) {
 
 		'grid_example' => array(
 			'label' => 'Section Name',
-			'sizes' => array( 'mobile' => 16, 'tablet' => 8, 'computer' => 4 ),
 			'items' => array(
 				'checkbox' => array(
 					'type' => 'checkbox',
 					'label' => 'The cjeck'
 				),
+				'name' => array(
+					'type' => 'text',
+					'label' => 'Name'
+				),
+				'email' => array(
+					'type' => 'text',
+					'label' => 'Email'
+				),
 				'toggle' => array(
 					'type' => 'toggle',
 					'label' => 'The ctogglejeck'
+				),
+				'anothertext' => array(
+					'type' => 'text',
+					'label' => 'Another text'
 				),
 			)
 		),
 
 		'grid_example2' => array(
 			'label' => 'Second Section',
-			'sizes' => array( 'mobile' => 16, 'tablet' => 8, 'computer' => 4 ),
 			'items' => array(
 				'text' => array(
 					'type' => 'text',
@@ -61,7 +71,6 @@ add_filter( 'adminoptions_config', function( $config ) {
 
 		'grid_example3' => array(
 			'label' => 'Section Name 3',
-			'sizes' => array( 'mobile' => 16, 'tablet' => 8, 'computer' => 4 ),
 			'items' => array(
 				'checkbox' => array(
 					'type' => 'checkbox',
@@ -76,7 +85,6 @@ add_filter( 'adminoptions_config', function( $config ) {
 
 		'grid_example4' => array(
 			'label' => ' 4 Section',
-			'sizes' => array( 'mobile' => 16, 'tablet' => 8, 'computer' => 4 ),
 			'items' => array(
 				'text' => array(
 					'type' => 'text',
