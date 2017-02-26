@@ -34,9 +34,13 @@
     "react-dom": "^15.4.2",
     "react-tap-event-plugin": "^2.0.1",
     "rtlcss": "*",
+    "semantic-ui": "^2.2.9",
     "susy": "^2.2.12",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.9.0"
+  },
+  "dependencies": {
+    "semantic-ui-react": "^0.66.0"
   }
 }

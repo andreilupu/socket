@@ -11,6 +11,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 // import PixelgradeCareNoSupportHere from './components/no_support.js';
-import OptionsPage from './components/dashboard.js';
+import AdminOptionsDashboard from './components/dashboard.js';
 
-ReactDOM.render(<OptionsPage />, document.getElementById('admin_options_dashboard')  );
+ReactDOM.render(<AdminOptionsDashboard />, document.getElementById('admin_options_dashboard')  );

@@ -1,20 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
+// import semantic from './semantic.min.js';
 
-import {Tabs, Tab} from 'material-ui/Tabs';
-import AdminOptionsField from './field.js';
+import Sections from './sections';
 
-const tabsStyles = {
-	barStyle: {
-		display: "none"
-	}
-};
+import { Grid, Image } from 'semantic-ui-react'
+import { Container, Header } from 'semantic-ui-react'
+import { Text, Button, Checkbox, Form } from 'semantic-ui-react'
 
-class OptionsDashboard extends React.Component {
+class AdminOptionsDashboard extends React.Component {
 
 	constructor(props) {
 		// this makes the this
@@ -22,41 +17,69 @@ class OptionsDashboard extends React.Component {
 
 		// get the current state localized by wordpress
 		this.state = adminoptions.state;
-		// // This binding is necessary to make `this` work in the callback
-
-		this.config = adminoptions.config || {}
 	}
 
 	render() {
 
-		var SectionsList = Object.keys( adminoptions.config ).map(function( key ){
+		return <div>
+			<Grid>{ Object.keys( adminoptions.config ).map(function( grid_key ){
 
-			var section = adminoptions.config[key];
+				if ( typeof grid_key === "undefined" ) {
+					return false;
+				}
 
-			var tab = <Tab className={"dashboard-tabs__tab-name"} label={section.label} key={key}>
-				{Object.keys( section.fields ).map(function( key ){
+				var section_config = adminoptions.config[grid_key];
 
-					var field_config = section.fields[key];
+				var sizes = section_config.sizes
 
-					var output = <fieldset className="field" key={key}>
-						<label htmlFor="">{field_config.label}</label>
-						<AdminOptionsField config={field_config}/>
-					</fieldset>;
+				var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet} mobile={sizes.mobile}>
 
-					console.debug( field_config );
-					return output;
-				})}
-			</Tab>;
+					<Header as='h2' key={grid_key} content={section_config.label} subheader={section_config.desc} />
 
-			return tab;
-		})
+					<Form>
+					{ Object.keys( section_config.items ).map(function( field_key ){
 
-		var output =
-			<div>
-				<Tabs className={"dashboard-tabs"} >{ SectionsList }</Tabs>
-			</div>
+						var field = section_config.items[field_key];
 
-		return (output);
+						var output = null;
+
+						switch ( field.type ) {
+							case 'text' : {
+								output = <Form.Field key={field_key}>
+									<label>{field.label}</label>
+									<input placeholder='First Name' />
+								</Form.Field>
+								break;
+							}
+
+							case 'checkbox' : {
+								output = <Form.Field key={field_key}>
+									<label>{field.label}</label>
+									<Checkbox placeholder='First Name' />
+								</Form.Field>
+								break;
+							}
+
+							case 'toggle' : {
+								output = <Form.Field key={field_key}>
+									<label>{field.label}</label>
+									<Checkbox toggle placeholder='First Name' />
+								</Form.Field>
+								break;
+							}
+
+							default:
+								break
+						}
+
+						return output
+					})}
+					</Form>
+				</Grid.Column>
+
+				return section
+			}) }</Grid>
+		</div>
 	}
 
 	htmlDecode(input) {
@@ -91,21 +114,4 @@ class OptionsDashboard extends React.Component {
 	}
 }
 
-// Handle active tab hack
-window.requestAnimationFrame(function () {
-	var tabs = jQuery('.dashboard-tabs__tab-name');
-
-	jQuery('.dashboard-tabs__tab-name:first-of-type').addClass('is-active');
-	tabs.on('click', function () {
-		tabs.removeClass('is-active');
-		jQuery(this).addClass('is-active');
-	});
-});
-
-const OptionsPage = () => (
-	<MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
-		<OptionsDashboard />
-	</MuiThemeProvider>
-);
-
-export default OptionsPage;
+export default (AdminOptionsDashboard);

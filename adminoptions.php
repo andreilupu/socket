@@ -23,6 +23,177 @@
  * @subpackage Gridable/admin
  * @author     Pixelgrade <contact@pixelgrade.com>
  */
+
+add_filter( 'adminoptions_config', function( $config ) {
+
+	return array(
+
+		'grid_example' => array(
+			'label' => 'Section Name',
+			'sizes' => array( 'mobile' => 16, 'tablet' => 8, 'computer' => 4 ),
+			'items' => array(
+				'checkbox' => array(
+					'type' => 'checkbox',
+					'label' => 'The cjeck'
+				),
+				'toggle' => array(
+					'type' => 'toggle',
+					'label' => 'The ctogglejeck'
+				),
+			)
+		),
+
+		'grid_example2' => array(
+			'label' => 'Second Section',
+			'sizes' => array( 'mobile' => 16, 'tablet' => 8, 'computer' => 4 ),
+			'items' => array(
+				'text' => array(
+					'type' => 'text',
+					'label' => 'The text'
+				),
+				'toggle' => array(
+					'type' => 'toggle',
+					'label' => 'The ctogglejeck'
+				),
+			)
+		),
+
+
+		'grid_example3' => array(
+			'label' => 'Section Name 3',
+			'sizes' => array( 'mobile' => 16, 'tablet' => 8, 'computer' => 4 ),
+			'items' => array(
+				'checkbox' => array(
+					'type' => 'checkbox',
+					'label' => 'The cjeck'
+				),
+				'toggle' => array(
+					'type' => 'toggle',
+					'label' => 'The ctogglejeck'
+				),
+			)
+		),
+
+		'grid_example4' => array(
+			'label' => ' 4 Section',
+			'sizes' => array( 'mobile' => 16, 'tablet' => 8, 'computer' => 4 ),
+			'items' => array(
+				'text' => array(
+					'type' => 'text',
+					'label' => 'The text'
+				),
+				'toggle' => array(
+					'type' => 'toggle',
+					'label' => 'The ctogglejeck'
+				),
+			)
+		),
+	);
+
+	$config = array(
+		'tab1' => array(
+			'label'  => 'Tab title',
+			'fields' => array(
+				'texter' => array(
+					'label'   => 'Example',
+					'type'    => 'text',
+					'default' => 'whaaadasa sad as das'
+				),
+
+				'textera' => array(
+					'label'   => 'Checkbos Example',
+					'type'    => 'checkbox',
+					'default' => 'whaaadasa sad as das'
+				),
+
+				'checkb' => array(
+					'label'   => 'toggle Example',
+					'type'    => 'toggle',
+					'default' => 'whaa aaaa sssss s'
+				),
+
+				'editor' => array(
+					'label'   => 'Example',
+					'type'    => 'editor',
+					'default' => 'whaaadasa sad as das'
+				)
+			)
+		),
+
+		'tab2' => array(
+			'label'  => 'Second tab title',
+			'fields' => array(
+				'toogler' => array(
+					'label'   => 'Checkbox Example',
+					'type'    => 'checkbox',
+					'default' => 'whaaadasa sad as das'
+				),
+
+				'select' => array(
+					'label'   => 'Select Example',
+					'type'    => 'select',
+					'default' => 'whaaadasa sad as das'
+				),
+
+				'radio' => array(
+					'label'   => 'Example',
+					'type'    => 'radio',
+					'default' => 'whaaadasa sad as das'
+				),
+			)
+		),
+
+		'tab3' => array(
+			'label'  => '3 tab title',
+			'fields' => array(
+				'toogler' => array(
+					'label'   => 'Checkbox Example',
+					'type'    => 'checkbox',
+					'default' => 'whaaadasa sad as das'
+				),
+
+				'select' => array(
+					'label'   => 'Select Example',
+					'type'    => 'select',
+					'default' => 'whaaadasa sad as das'
+				),
+
+				'radio' => array(
+					'label'   => 'Example',
+					'type'    => 'radio',
+					'default' => 'whaaadasa sad as das'
+				),
+			)
+		),
+
+		'tab4' => array(
+			'label'  => '4 tab title',
+			'fields' => array(
+				'toogler' => array(
+					'label'   => 'Checkbox Example',
+					'type'    => 'checkbox',
+					'default' => 'whaaadasa sad as das'
+				),
+
+				'select' => array(
+					'label'   => 'Select Example',
+					'type'    => 'select',
+					'default' => 'whaaadasa sad as das'
+				),
+
+				'radio' => array(
+					'label'   => 'Example',
+					'type'    => 'radio',
+					'default' => 'whaaadasa sad as das'
+				),
+			)
+		)
+	);
+
+	return $config;
+} );
+
+
 class Gridable_Admin_Page {
 	/**
 	 * The version of this plugin.
@@ -34,6 +205,8 @@ class Gridable_Admin_Page {
 	private $version;
 
 	private $name;
+
+	private $description;
 
 	private $options;
 
@@ -50,106 +223,7 @@ class Gridable_Admin_Page {
 		$this->version = $version;
 		$this->name = esc_html__( 'Options Page Name', 'adminoptions' );
 
-		$this->config = array(
-
-			'tab1' => array(
-				'label'  => 'Tab title',
-				'fields' => array(
-					'texter' => array(
-						'label'   => 'Example',
-						'type'    => 'text',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'textera' => array(
-						'label'   => 'Text area Example',
-						'type'    => 'textarea',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'checkb' => array(
-						'label'   => 'Text checkbox Example',
-						'type'    => 'checkbox',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'editor' => array(
-						'label'   => 'Example',
-						'type'    => 'editor',
-						'default' => 'whaaadasa sad as das'
-					)
-				)
-			),
-
-			'tab2' => array(
-				'label'  => 'Second tab title',
-				'fields' => array(
-					'toogler' => array(
-						'label'   => 'Checkbox Example',
-						'type'    => 'checkbox',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'select' => array(
-						'label'   => 'Select Example',
-						'type'    => 'select',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'radio' => array(
-						'label'   => 'Example',
-						'type'    => 'radio',
-						'default' => 'whaaadasa sad as das'
-					),
-				)
-			),
-
-			'tab3' => array(
-				'label'  => '3 tab title',
-				'fields' => array(
-					'toogler' => array(
-						'label'   => 'Checkbox Example',
-						'type'    => 'checkbox',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'select' => array(
-						'label'   => 'Select Example',
-						'type'    => 'select',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'radio' => array(
-						'label'   => 'Example',
-						'type'    => 'radio',
-						'default' => 'whaaadasa sad as das'
-					),
-				)
-			),
-
-			'tab4' => array(
-				'label'  => '4 tab title',
-				'fields' => array(
-					'toogler' => array(
-						'label'   => 'Checkbox Example',
-						'type'    => 'checkbox',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'select' => array(
-						'label'   => 'Select Example',
-						'type'    => 'select',
-						'default' => 'whaaadasa sad as das'
-					),
-
-					'radio' => array(
-						'label'   => 'Example',
-						'type'    => 'radio',
-						'default' => 'whaaadasa sad as das'
-					),
-				)
-			)
-		);
+		$this->config = apply_filters('adminoptions_config', array() );
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 
@@ -168,10 +242,20 @@ class Gridable_Admin_Page {
 
 	function adminoptions_options_page() {
 		$state = $this->get_option( 'state' ); ?>
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
 		<div class="wrap">
 			<div class="adminoptions-wrapper">
-				<h1 class="title"><?php echo $this->name ?></h1>
-				<div id="admin_options_dashboard"></div>
+				<header class="title">
+					<h1 class="page-title"><?php echo $this->name ?></h1>
+					<div class="description"><?php echo $this->description ?></div>
+				</header>
+
+				<div class="content">
+					<div id="admin_options_dashboard"></div>
+				</div>
+				<footer>
+
+				</footer>
 			</div>
 		</div>
 		<?php

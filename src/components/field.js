@@ -1,52 +1,61 @@
 import React from 'react';
+
 import TextField from 'material-ui/TextField';
 import Checkbox from 'material-ui/Checkbox';
 
-class AdminOptionsField extends React.Component {
+import Toggle from 'material-ui/Toggle';
+
+class Field extends React.Component {
 	constructor(props) {
 		// this makes the this
 		super(props);
-
 	}
 
 	render() {
 
-		var ouput = null;
+		let output = null;
+		let config = this.props.config
 
-		console.log( this.props.config.type );
 		switch ( this.props.config.type ) {
 
 			case 'text' : {
-				ouput = <div>
-					<TextField hintText="Hint Text" />
-				</div>
+				output = <TextField hintText="Hint Text" />
 				break;
 			}
 
 			case 'checkbox' : {
-				ouput = <Checkbox
+				output = <Checkbox
 						label="Label on the left"
 						labelPosition="left"
 					/>
 				break;
 			}
 
-			case 'radio' : {
-				ouput = <div>
-					<TextField
-						hintText="Radio  Text"
-					/>
-				</div>
+			case 'toggle' :  {
+				output = <Toggle
+					label="Toggled by default"
+					defaultToggled={true}
+				/>
 				break;
 			}
 
+			case 'radio' : {
+				console.log( config );
+				output = <TextField
+						hintText="Radio  Text"
+					/>
+				break;
+			}
 
 			default:
 				break
 		}
 
-		return (ouput)
+		return <section className="field">
+			<label >{config.label}</label>
+			{output}
+		</section>;
 	}
 }
 
-export default AdminOptionsField;
+export default Field;
