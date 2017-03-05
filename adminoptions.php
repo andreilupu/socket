@@ -24,31 +24,34 @@
  * @author     Pixelgrade <contact@pixelgrade.com>
  */
 
-add_filter( 'adminoptions_config', function( $config ) {
+add_filter( 'adminoptions_config', function ( $config ) {
 
 	return array(
 
 		'grid_example' => array(
 			'label' => 'Section Name',
 			'items' => array(
-				'checkbox' => array(
-					'type' => 'checkbox',
-					'label' => 'The cjeck'
+				'first_checkbox'    => array(
+					'type'  => 'checkbox',
+					'label' => 'The cjeck',
+					'default' => 0
 				),
-				'name' => array(
-					'type' => 'text',
-					'label' => 'Name'
+				'name'        => array(
+					'type'  => 'text',
+					'label' => 'Name',
+					'default' => 'ok oko k'
 				),
-				'email' => array(
-					'type' => 'text',
+				'email'       => array(
+					'type'  => 'text',
 					'label' => 'Email'
 				),
-				'toggle' => array(
-					'type' => 'toggle',
-					'label' => 'The ctogglejeck'
+				'first_toggle'      => array(
+					'type'  => 'toggle',
+					'label' => 'The ctogglejeck',
+					'default' => 1
 				),
 				'anothertext' => array(
-					'type' => 'text',
+					'type'  => 'text',
 					'label' => 'Another text'
 				),
 			)
@@ -57,12 +60,12 @@ add_filter( 'adminoptions_config', function( $config ) {
 		'grid_example2' => array(
 			'label' => 'Second Section',
 			'items' => array(
-				'text' => array(
-					'type' => 'text',
+				'whattext'   => array(
+					'type'  => 'text',
 					'label' => 'The text'
 				),
-				'toggle' => array(
-					'type' => 'toggle',
+				'le_toggle' => array(
+					'type'  => 'toggle',
 					'label' => 'The ctogglejeck'
 				),
 			)
@@ -72,12 +75,12 @@ add_filter( 'adminoptions_config', function( $config ) {
 		'grid_example3' => array(
 			'label' => 'Section Name 3',
 			'items' => array(
-				'checkbox' => array(
-					'type' => 'checkbox',
+				'acheckbox' => array(
+					'type'  => 'checkbox',
 					'label' => 'The cjeck'
 				),
-				'toggle' => array(
-					'type' => 'toggle',
+				'atoggle'   => array(
+					'type'  => 'toggle',
 					'label' => 'The ctogglejeck'
 				),
 			)
@@ -86,12 +89,12 @@ add_filter( 'adminoptions_config', function( $config ) {
 		'grid_example4' => array(
 			'label' => ' 4 Section',
 			'items' => array(
-				'text' => array(
-					'type' => 'text',
+				'dasdastext'   => array(
+					'type'  => 'text',
 					'label' => 'The text'
 				),
-				'toggle' => array(
-					'type' => 'toggle',
+				'dasdasdasoggle' => array(
+					'type'  => 'toggle',
 					'label' => 'The ctogglejeck'
 				),
 			)
@@ -102,25 +105,25 @@ add_filter( 'adminoptions_config', function( $config ) {
 		'tab1' => array(
 			'label'  => 'Tab title',
 			'fields' => array(
-				'texter' => array(
+				'dasdastexter' => array(
 					'label'   => 'Example',
 					'type'    => 'text',
 					'default' => 'whaaadasa sad as das'
 				),
 
-				'textera' => array(
+				'dasdasdatextera' => array(
 					'label'   => 'Checkbos Example',
 					'type'    => 'checkbox',
 					'default' => 'whaaadasa sad as das'
 				),
 
-				'checkb' => array(
+				'dasdasdascheckb' => array(
 					'label'   => 'toggle Example',
 					'type'    => 'toggle',
 					'default' => 'whaa aaaa sssss s'
 				),
 
-				'editor' => array(
+				'aaaddaeditor' => array(
 					'label'   => 'Example',
 					'type'    => 'editor',
 					'default' => 'whaaadasa sad as das'
@@ -137,13 +140,13 @@ add_filter( 'adminoptions_config', function( $config ) {
 					'default' => 'whaaadasa sad as das'
 				),
 
-				'select' => array(
+				'aselect' => array(
 					'label'   => 'Select Example',
 					'type'    => 'select',
 					'default' => 'whaaadasa sad as das'
 				),
 
-				'radio' => array(
+				'aradio' => array(
 					'label'   => 'Example',
 					'type'    => 'radio',
 					'default' => 'whaaadasa sad as das'
@@ -154,19 +157,19 @@ add_filter( 'adminoptions_config', function( $config ) {
 		'tab3' => array(
 			'label'  => '3 tab title',
 			'fields' => array(
-				'toogler' => array(
+				'wattoogler' => array(
 					'label'   => 'Checkbox Example',
 					'type'    => 'checkbox',
 					'default' => 'whaaadasa sad as das'
 				),
 
-				'select' => array(
+				'watselect' => array(
 					'label'   => 'Select Example',
 					'type'    => 'select',
 					'default' => 'whaaadasa sad as das'
 				),
 
-				'radio' => array(
+				'watradio' => array(
 					'label'   => 'Example',
 					'type'    => 'radio',
 					'default' => 'whaaadasa sad as das'
@@ -177,19 +180,19 @@ add_filter( 'adminoptions_config', function( $config ) {
 		'tab4' => array(
 			'label'  => '4 tab title',
 			'fields' => array(
-				'toogler' => array(
+				'qweqgastoogler' => array(
 					'label'   => 'Checkbox Example',
 					'type'    => 'checkbox',
 					'default' => 'whaaadasa sad as das'
 				),
 
-				'select' => array(
+				'dasdselect' => array(
 					'label'   => 'Select Example',
 					'type'    => 'select',
 					'default' => 'whaaadasa sad as das'
 				),
 
-				'radio' => array(
+				'asradio' => array(
 					'label'   => 'Example',
 					'type'    => 'radio',
 					'default' => 'whaaadasa sad as das'
@@ -216,9 +219,13 @@ class Gridable_Admin_Page {
 
 	private $description;
 
-	private $options;
+	private $values;
 
 	private $config;
+
+	private $defaults;
+
+	private $key = 'adminoptions';
 
 	/**
 	 * Initialize the class and set its properties.
@@ -229,15 +236,19 @@ class Gridable_Admin_Page {
 	 */
 	public function __construct( $version ) {
 		$this->version = $version;
-		$this->name = esc_html__( 'Options Page Name', 'adminoptions' );
+		$this->name    = esc_html__( 'Options Page Name', 'adminoptions' );
 
-		$this->config = apply_filters('adminoptions_config', array() );
+		$this->config = apply_filters( 'adminoptions_config', array() );
+
+		add_action( 'rest_api_init', array( $this, 'add_rest_routes_api' ) );
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+		$this->set_defaults( $this->config );
 	}
 
 	// Register a settings page
@@ -311,10 +322,9 @@ class Gridable_Admin_Page {
 
 
 	function localize_js_data( $key ) {
-		$state = $this->get_option( 'state' );
+		$values = $this->get_option( 'state' );
 
 		$localized_data = array(
-			'state'     => $state,
 			'wp_rest'   => array(
 				'root'               => esc_url_raw( rest_url() ),
 				'nonce'              => wp_create_nonce( 'wp_rest' ),
@@ -322,22 +332,21 @@ class Gridable_Admin_Page {
 			),
 			'admin_url' => admin_url(),
 			'config'    => $this->config,
-			'options'   => $this->options
+			'values'    => $this->values
 		);
 
 		wp_localize_script( $key, 'adminoptions', $localized_data );
 	}
 
-
 	function add_rest_routes_api() {
 		//The Following registers an api route with multiple parameters.
-		register_rest_route( 'adminoptions/v1', '/react_state', array(
+		register_rest_route( 'adminoptions/v1', '/option', array(
 			'methods'             => 'GET',
 			'callback'            => array( $this, 'rest_get_state' ),
 			'permission_callback' => array( $this, 'permission_nonce_callback' )
 		) );
 
-		register_rest_route( 'adminoptions/v1', '/react_state', array(
+		register_rest_route( 'adminoptions/v1', '/option', array(
 			'methods'             => 'POST',
 			'callback'            => array( $this, 'rest_set_state' ),
 			'permission_callback' => array( $this, 'permission_nonce_callback' )
@@ -362,13 +371,18 @@ class Gridable_Admin_Page {
 	}
 
 	function rest_set_state() {
-		if ( empty( $_POST['state'] ) || ! is_array( $_POST['state'] ) ) {
-			wp_send_json_error( esc_html__( 'Wrong state param', 'adminoptions' ) );
+		if ( empty( $_POST['name'] ) || empty( $_POST['value'] ) ) {
+			wp_send_json_error( esc_html__( 'Wrong state params', 'adminoptions' ) );
 		}
 
-		$this->options['state'] = $_POST['state'];
-		$this->save_options();
-		wp_send_json_success( $this->options['state'] );
+		$this->get_values();
+
+		$option_name = $_POST['name'];
+
+		$option_value = $_POST['value'];
+
+		$this->values[$option_name] = $option_value;
+		wp_send_json_success( $this->save_values() );
 	}
 
 	/**
@@ -382,27 +396,55 @@ class Gridable_Admin_Page {
 		return false;
 	}
 
-	function set_options() {
-		$this->options = get_option( 'adminoptions_options' );
+	function set_values() {
+		$this->values = get_option( $this->key);
+
+		if ( $this->values === false ) {
+			$this->values = $this->defaults;
+		} else if ( count( array_diff_key( $this->defaults, $this->values ) ) != 0 ) {
+			$this->values = array_merge( $this->defaults, $this->values );
+		}
+//		var_dump($this->values);
 	}
 
-	function save_options() {
-		update_option( 'adminoptions_options', $this->options );
+	function save_values() {
+		return update_option( $this->key, $this->values );
 	}
 
-	function get_options() {
-		if ( empty( $this->options ) ) {
-			$this->set_options();
+	function set_defaults( $array ) {
+
+		if ( ! empty( $array ) ) {
+
+			foreach ( $array as $key => $value ) {
+
+				if ( ! is_array( $value ) ) {
+					continue;
+				}
+
+				$result = array_key_exists('default', $value);
+
+				if ( $result ) {
+					$this->defaults[$key] = $value['default'];
+				} elseif ( is_array( $value ) ) {
+					$this->set_defaults( $value );
+				}
+			}
+		}
+	}
+
+	function get_values() {
+		if ( empty( $this->values ) ) {
+			$this->set_values();
 		}
 
-		return $this->options;
+		return $this->values;
 	}
 
 	function get_option( $option, $default = null ) {
-		$options = $this->get_options();
+		$values = $this->get_values();
 
-		if ( ! empty( $options[ $option ] ) ) {
-			return $options[ $option ];
+		if ( ! empty( $values[ $option ] ) ) {
+			return $values[ $option ];
 		}
 
 		if ( $default !== null ) {
@@ -410,6 +452,26 @@ class Gridable_Admin_Page {
 		}
 
 		return null;
+	}
+
+
+	function array_key_exists_r($needle, $haystack) {
+		$result = array_key_exists($needle, $haystack);
+
+		if ($result) {
+			return $result;
+		}
+
+		foreach ($haystack as $v) {
+			if (is_array($v)) {
+				$result = array_key_exists_r($needle, $v);
+			}
+			if ($result) {
+				return $result;
+			}
+		}
+
+		return $result;
 	}
 }
 
