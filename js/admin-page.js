@@ -68708,7 +68708,7 @@ var AdminOptionsDashboard = function (_React$Component) {
 			return _react2.default.createElement(
 				_semanticUiReact.Segment,
 				null,
-				component.state.loading === false ? _react2.default.createElement(
+				component.state.loading === true ? _react2.default.createElement(
 					"div",
 					{ style: { "position": 'absolute', "top": 0, "bottom": 0, "right": 0, "left": 0 } },
 					_react2.default.createElement(
