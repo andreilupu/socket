@@ -1,6 +1,6 @@
-var plugin = 'adminoptions',
-	source_SCSS = { admin: './scss/**/*.scss', public: './scss/**/*.scss'},
-	dest_CSS = { admin:'./css/', public: './css/'},
+var plugin = 'socket',
+	source_SCSS = { admin: './socket/scss/**/*.scss', public: './socket/scss/**/*.scss'},
+	dest_CSS = { admin:'./socket/css/', public: './socket/css/'},
 
 	gulp 		= require('gulp'),
 	sass 		= require('gulp-sass'),
@@ -66,7 +66,7 @@ gulp.task('watch-public', function () {
  */
 gulp.task( 'zip', ['build'], function() {
 	return gulp.src( './' )
-		.pipe( exec( 'cd ./../; rm -rf adminoptions.zip; cd ./build/; zip -r -X ./../adminoptions.zip ./adminoptions; cd ./../; rm -rf build' ) );
+		.pipe( exec( 'cd ./../; rm -rf socket.zip; cd ./build/; zip -r -X ./../socket.zip ./socket; cd ./../; rm -rf build' ) );
 
 } );
 
@@ -75,7 +75,7 @@ gulp.task( 'zip', ['build'], function() {
  */
 gulp.task( 'copy-folder', function() {
 	return gulp.src( './' )
-		.pipe( exec( 'rm -Rf ./../build; mkdir -p ./../build/adminoptions; cp -Rf ./* ./../build/adminoptions/' ) );
+		.pipe( exec( 'rm -Rf ./../build; mkdir -p ./../build/socket; cp -Rf ./* ./../build/socket/' ) );
 } );
 
 /**
@@ -111,7 +111,7 @@ gulp.task( 'build', ['copy-folder'], function() {
 	];
 
 	files_to_remove.forEach( function( e, k ) {
-		files_to_remove[k] = '../build/adminoptions/' + e;
+		files_to_remove[k] = '../build/socket/' + e;
 	} );
 
 	del.sync(files_to_remove, {force: true});
@@ -141,16 +141,16 @@ var reactdom = require('react-dom');
 var babel = require('babelify');
 
 function compile_admin(watch) {
-	var bundler = watchify(browserify('./src/admin-page.js', { debug: false }).transform(babel, { presets: ["es2015", "stage-0", "react"]}));
+	var bundler = watchify(browserify('./socket/src/socket.js', { debug: false }).transform(babel, { presets: ["es2015", "stage-0", "react"]}));
 
 	function rebundle_admin() {
 		bundler.bundle()
 			.on('error', function(err) { console.error(err); this.emit('end'); })
-			.pipe(source('admin-page.js'))
+			.pipe(source('socket.js'))
 			.pipe(buffer())
 			.pipe(sourcemaps.init({ loadMaps: false }))
 			.pipe(sourcemaps.write('./'))
-			.pipe(gulp.dest('./js'));
+			.pipe(gulp.dest('./socket/js'));
 	}
 
 	if (watch) {

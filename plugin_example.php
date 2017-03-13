@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name:       Admin Options
+ * Plugin Name:       Socket Plugin Example
  * Plugin URI:        https://andrei-lupu.com/
- * Description:       admin
+ * Description:       This is a Socket Framework Plugin Example
  * Version:           1.1.0
  * Author:            Pixelgrade
  * Author URI:        https://andrei-lupu.com/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       adminoptions
+ * Text Domain:       socket
  * Domain Path:       /languages
  */
 
@@ -19,12 +19,12 @@
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
- * @package    Gridable
- * @subpackage Gridable/admin
+ * @package    Socket
+ * @subpackage Socket/admin
  * @author     Pixelgrade <contact@pixelgrade.com>
  */
 
-add_filter( 'adminoptions_config', function ( $config ) {
+add_filter( 'socket_config', function ( $config ) {
 
 	return array(
 
@@ -33,13 +33,14 @@ add_filter( 'adminoptions_config', function ( $config ) {
 			'items' => array(
 				'first_checkbox'    => array(
 					'type'  => 'checkbox',
-					'label' => 'The cjeck',
+					'label' => 'The check',
 					'default' => 0
 				),
 				'name'        => array(
 					'type'  => 'text',
 					'label' => 'Name',
-					'default' => 'ok oko k'
+					'placeholder' => 'Just a text field',
+
 				),
 				'email'       => array(
 					'type'  => 'text',
@@ -47,12 +48,12 @@ add_filter( 'adminoptions_config', function ( $config ) {
 				),
 				'first_toggle'      => array(
 					'type'  => 'toggle',
-					'label' => 'The ctogglejeck',
+					'label' => 'Just a checkbox',
 					'default' => 1
 				),
 				'anothertext' => array(
 					'type'  => 'text',
-					'label' => 'Another text'
+					'label' => 'Just Another text'
 				),
 			)
 		),
@@ -101,111 +102,11 @@ add_filter( 'adminoptions_config', function ( $config ) {
 		),
 	);
 
-	$config = array(
-		'tab1' => array(
-			'label'  => 'Tab title',
-			'fields' => array(
-				'dasdastexter' => array(
-					'label'   => 'Example',
-					'type'    => 'text',
-					'default' => 'whaaadasa sad as das'
-				),
-
-				'dasdasdatextera' => array(
-					'label'   => 'Checkbos Example',
-					'type'    => 'checkbox',
-					'default' => 'whaaadasa sad as das'
-				),
-
-				'dasdasdascheckb' => array(
-					'label'   => 'toggle Example',
-					'type'    => 'toggle',
-					'default' => 'whaa aaaa sssss s'
-				),
-
-				'aaaddaeditor' => array(
-					'label'   => 'Example',
-					'type'    => 'editor',
-					'default' => 'whaaadasa sad as das'
-				)
-			)
-		),
-
-		'tab2' => array(
-			'label'  => 'Second tab title',
-			'fields' => array(
-				'toogler' => array(
-					'label'   => 'Checkbox Example',
-					'type'    => 'checkbox',
-					'default' => 'whaaadasa sad as das'
-				),
-
-				'aselect' => array(
-					'label'   => 'Select Example',
-					'type'    => 'select',
-					'default' => 'whaaadasa sad as das'
-				),
-
-				'aradio' => array(
-					'label'   => 'Example',
-					'type'    => 'radio',
-					'default' => 'whaaadasa sad as das'
-				),
-			)
-		),
-
-		'tab3' => array(
-			'label'  => '3 tab title',
-			'fields' => array(
-				'wattoogler' => array(
-					'label'   => 'Checkbox Example',
-					'type'    => 'checkbox',
-					'default' => 'whaaadasa sad as das'
-				),
-
-				'watselect' => array(
-					'label'   => 'Select Example',
-					'type'    => 'select',
-					'default' => 'whaaadasa sad as das'
-				),
-
-				'watradio' => array(
-					'label'   => 'Example',
-					'type'    => 'radio',
-					'default' => 'whaaadasa sad as das'
-				),
-			)
-		),
-
-		'tab4' => array(
-			'label'  => '4 tab title',
-			'fields' => array(
-				'qweqgastoogler' => array(
-					'label'   => 'Checkbox Example',
-					'type'    => 'checkbox',
-					'default' => 'whaaadasa sad as das'
-				),
-
-				'dasdselect' => array(
-					'label'   => 'Select Example',
-					'type'    => 'select',
-					'default' => 'whaaadasa sad as das'
-				),
-
-				'asradio' => array(
-					'label'   => 'Example',
-					'type'    => 'radio',
-					'default' => 'whaaadasa sad as das'
-				),
-			)
-		)
-	);
-
 	return $config;
 } );
 
 
-class Gridable_Admin_Page {
+class PluginExampleAdminPage {
 	/**
 	 * The version of this plugin.
 	 *
@@ -225,7 +126,7 @@ class Gridable_Admin_Page {
 
 	private $defaults;
 
-	private $key = 'adminoptions';
+	private $key = 'socket';
 
 	/**
 	 * Initialize the class and set its properties.
@@ -236,9 +137,9 @@ class Gridable_Admin_Page {
 	 */
 	public function __construct( $version ) {
 		$this->version = $version;
-		$this->name    = esc_html__( 'Options Page Name', 'adminoptions' );
+		$this->name    = esc_html__( 'Socket Admin Page', 'socket' );
 
-		$this->config = apply_filters( 'adminoptions_config', array() );
+		$this->config = apply_filters( 'socket_config', array() );
 
 		add_action( 'rest_api_init', array( $this, 'add_rest_routes_api' ) );
 
@@ -253,41 +154,37 @@ class Gridable_Admin_Page {
 
 	// Register a settings page
 	function add_admin_menu() {
-		$admin_page = add_submenu_page( 'options-general.php', $this->name, $this->name, 'manage_options', 'adminoptions', array(
+		$admin_page = add_submenu_page( 'options-general.php', $this->name, $this->name, 'manage_options', 'socket', array(
 			$this,
-			'adminoptions_options_page'
+			'socket_options_page'
 		) );
 	}
 
-	function adminoptions_options_page() {
+	function socket_options_page() {
 		$state = $this->get_option( 'state' ); ?>
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
 		<div class="wrap">
-			<div class="adminoptions-wrapper">
+			<div class="socket-wrapper">
 				<header class="title">
 					<h1 class="page-title"><?php echo $this->name ?></h1>
 					<div class="description"><?php echo $this->description ?></div>
 				</header>
-
 				<div class="content">
-					<div id="admin_options_dashboard"></div>
+					<div id="socket_dashboard"></div>
 				</div>
-				<footer>
-
-				</footer>
 			</div>
 		</div>
 		<?php
 	}
 
 	function settings_init() {
-		register_setting( 'adminoptions', 'adminoptions_settings' );
+		register_setting( 'socket', 'socket_settings' );
 
 		add_settings_section(
-			'adminoptions_section',
-			$this->name . esc_html__( ' description', 'adminoptions' ),
+			'socket_section',
+			$this->name . esc_html__( ' My plugin description description', 'socket' ),
 			null,
-			'adminoptions'
+			'socket'
 		);
 	}
 
@@ -298,8 +195,14 @@ class Gridable_Admin_Page {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-		if ( $this->is_admin_options_dashboard() ) {
-			wp_enqueue_style( 'adminoptions-dashboard', plugin_dir_url( __FILE__ ) . 'css/admin-page.css', array(), $this->version, 'all' );
+		if ( $this->is_socket_dashboard() ) {
+			wp_enqueue_style(
+				'socket-dashboard',
+				plugin_dir_url( __FILE__ ) . 'socket/css/socket.css',
+				array(),
+				filemtime(plugin_dir_path( __FILE__ ) . 'socket/css/socket.css'),
+				'all'
+			);
 		}
 	}
 
@@ -309,14 +212,16 @@ class Gridable_Admin_Page {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		if ( $this->is_admin_options_dashboard() ) {
+		if ( $this->is_socket_dashboard() ) {
 
-			wp_enqueue_script( 'adminoptions-dashboard', plugin_dir_url( __FILE__ ) . 'js/admin-page.js', array(
+			wp_enqueue_script( 'socket-dashboard', plugin_dir_url( __FILE__ ) . 'socket/js/socket.js', array(
 				'jquery',
 				'wp-util'
-			), $this->version, true );
+			),
+			filemtime(plugin_dir_path( __FILE__ ) . 'socket/js/socket.js'),
+			true );
 
-			$this->localize_js_data( 'adminoptions-dashboard' );
+			$this->localize_js_data( 'socket-dashboard' );
 		}
 	}
 
@@ -328,41 +233,48 @@ class Gridable_Admin_Page {
 			'wp_rest'   => array(
 				'root'               => esc_url_raw( rest_url() ),
 				'nonce'              => wp_create_nonce( 'wp_rest' ),
-				'adminoptions_nonce' => wp_create_nonce( 'adminoptions_rest' )
+				'socket_nonce' => wp_create_nonce( 'socket_rest' )
 			),
 			'admin_url' => admin_url(),
 			'config'    => $this->config,
 			'values'    => $this->values
 		);
 
-		wp_localize_script( $key, 'adminoptions', $localized_data );
+		wp_localize_script( $key, 'socket', $localized_data );
 	}
 
 	function add_rest_routes_api() {
 		//The Following registers an api route with multiple parameters.
-		register_rest_route( 'adminoptions/v1', '/option', array(
+		register_rest_route( 'socket/v1', '/option', array(
 			'methods'             => 'GET',
 			'callback'            => array( $this, 'rest_get_state' ),
 			'permission_callback' => array( $this, 'permission_nonce_callback' )
 		) );
 
-		register_rest_route( 'adminoptions/v1', '/option', array(
+		register_rest_route( 'socket/v1', '/option', array(
 			'methods'             => 'POST',
 			'callback'            => array( $this, 'rest_set_state' ),
 			'permission_callback' => array( $this, 'permission_nonce_callback' )
+		) );
+
+		// debug tools
+		register_rest_route( 'socket/v1', '/cleanup', array(
+			'methods'             => 'POST',
+			'callback'            => array( $this, 'rest_cleanup' ),
+			'permission_callback' => array( $this, 'permission_nonce_callback' ),
 		) );
 	}
 
 	function permission_nonce_callback() {
 		$nonce = '';
 
-		if ( isset( $_REQUEST['adminoptions_nonce'] ) ) {
-			$nonce = $_REQUEST['adminoptions_nonce'];
-		} elseif ( isset( $_POST['adminoptions_nonce'] ) ) {
-			$nonce = $_POST['adminoptions_nonce'];
+		if ( isset( $_REQUEST['socket_nonce'] ) ) {
+			$nonce = $_REQUEST['socket_nonce'];
+		} elseif ( isset( $_POST['socket_nonce'] ) ) {
+			$nonce = $_POST['socket_nonce'];
 		}
 
-		return wp_verify_nonce( $nonce, 'adminoptions_rest' );
+		return wp_verify_nonce( $nonce, 'socket_rest' );
 	}
 
 	function rest_get_state() {
@@ -372,7 +284,7 @@ class Gridable_Admin_Page {
 
 	function rest_set_state() {
 		if ( empty( $_POST['name'] ) || empty( $_POST['value'] ) ) {
-			wp_send_json_error( esc_html__( 'Wrong state params', 'adminoptions' ) );
+			wp_send_json_error( esc_html__( 'Wrong state params', 'socket' ) );
 		}
 
 		$this->get_values();
@@ -385,11 +297,34 @@ class Gridable_Admin_Page {
 		wp_send_json_success( $this->save_values() );
 	}
 
+
+	function rest_cleanup() {
+
+		if ( empty( $_POST['test1'] ) || empty( $_POST['test2'] ) || empty( $_POST['confirm'] ) ) {
+			wp_send_json_error( 'nah' );
+		}
+
+		if ( (int) $_POST['test1'] + (int) $_POST['test2'] === (int) $_POST['confirm'] ) {
+			$current_user = _wp_get_current_user();
+
+			$this->values= array();
+			wp_send_json_success( $this->save_values() );
+
+			wp_send_json_success( 'ok' );
+		}
+
+		wp_send_json_error( array(
+			$_POST['test1'],
+			$_POST['test2'],
+			$_POST['confirm']
+		) );
+	}
+
 	/**
 	 * Helpers
 	 **/
-	function is_admin_options_dashboard() {
-		if ( ! empty( $_GET['page'] ) && 'adminoptions' === $_GET['page'] ) {
+	function is_socket_dashboard() {
+		if ( ! empty( $_GET['page'] ) && 'socket' === $_GET['page'] ) {
 			return true;
 		}
 
@@ -475,4 +410,4 @@ class Gridable_Admin_Page {
 	}
 }
 
-$admin_options = new Gridable_Admin_Page( '1.1.0' );
+$socket = new PluginExampleAdminPage( '1.1.0' );

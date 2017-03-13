@@ -1,31 +1,24 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import LinearProgressExampleSimple from './progress';
+import { Grid, Image, Container, Segment, Header, Loader, Dimmer, Form, Text, Button, Checkbox, Divider } from 'semantic-ui-react'
 
-// import semantic from './semantic.min.js';
-
-import Sections from './sections';
-
-import { Grid, Image } from 'semantic-ui-react'
-import { Container, Segment, Header, Loader, Dimmer, Form, Text, Button, Checkbox, Divider } from 'semantic-ui-react'
-
-class AdminOptionsDashboard extends React.Component {
+class SocketDashboard extends React.Component {
 
 	constructor(props) {
 		// this makes the this
 		super(props);
 
-
 		// get the current state localized by wordpress
 		this.state = {
 			loading: false,
-			values: adminoptions.values
+			values: socket.values
 		};
 
 		this.handleChange = this.handleChange.bind(this);
 		this.inputHandleChange = this.inputHandleChange.bind(this);
 		this.checkboxHandleChange = this.checkboxHandleChange.bind(this);
+		this.clean_the_house = this.clean_the_house.bind(this);
 	}
 
 	render() {
@@ -37,7 +30,6 @@ class AdminOptionsDashboard extends React.Component {
 				<div style={{"position" : 'absolute', "top": 0, "bottom": 0, "right": 0, "left": 0 }} >
 					<Dimmer active>
 						<Loader size='big' />
-
 						<Divider inverted />
 						<Divider inverted />
 						<Divider inverted />
@@ -50,19 +42,18 @@ class AdminOptionsDashboard extends React.Component {
 						<Divider inverted />
 						<Divider inverted />
 						<Divider horizontal inverted >Saving ... wait a second</Divider>
-
 					</Dimmer>
 				</div>
 				:
 				''
 			}
 
-			<Grid>{ Object.keys( adminoptions.config ).map(function( grid_key ){
+			<Grid>{ Object.keys( socket.config ).map(function( grid_key ){
 				if ( typeof grid_key === "undefined" ) {
 					return false;
 				}
 
-				var section_config = adminoptions.config[grid_key];
+				var section_config = socket.config[grid_key];
 
 				// default grid sizes, doc this
 				var sizes = { ...{ computer: 8, tablet: 16 }, ...section_config.sizes };
@@ -81,14 +72,19 @@ class AdminOptionsDashboard extends React.Component {
 							value = component.state.values[field_key];
 						}
 
-						var output = null;
+						var output = null,
+							placeholder = '';
+
+						if ( typeof field.placeholder !== "undefined" ) {
+							placeholder = field.placeholder;
+						}
 
 						switch ( field.type ) {
 							case 'text' : {
 
 								output = <Form.Field key={field_key}>
 									<label>{field.label}</label>
-									<input placeholder='First Name' data-name={field_key} onInput={component.inputHandleChange} defaultValue={value} />
+									<input placeholder={placeholder} data-name={field_key} onInput={component.inputHandleChange} defaultValue={value} />
 								</Form.Field>
 								break;
 							}
@@ -98,7 +94,7 @@ class AdminOptionsDashboard extends React.Component {
 
 								output = <Form.Field key={field_key}>
 									<label>{field.label}</label>
-									<Checkbox placeholder='First Name' data-name={field_key} onChange={component.checkboxHandleChange} defaultChecked={value} />
+									<Checkbox placeholder={placeholder} data-name={field_key} onChange={component.checkboxHandleChange} defaultChecked={value} />
 								</Form.Field>
 								break;
 							}
@@ -108,7 +104,7 @@ class AdminOptionsDashboard extends React.Component {
 
 								output = <Form.Field key={field_key}>
 									<label>{field.label}</label>
-									<Checkbox toggle placeholder='First Name' data-name={field_key} onChange={component.checkboxHandleChange} defaultChecked={value} />
+									<Checkbox toggle placeholder={placeholder} data-name={field_key} onChange={component.checkboxHandleChange} defaultChecked={value} />
 								</Form.Field>
 								break;
 							}
@@ -124,7 +120,13 @@ class AdminOptionsDashboard extends React.Component {
 				</Grid.Column>
 
 				return section
-			}) }</Grid>
+			}) }
+			</Grid>
+
+			<Segment color="red">
+				<h3>Debug Tools</h3>
+				<Button basic color="red" onClick={this.clean_the_house}>Reset</Button>
+			</Segment>
 		</Segment>
 	}
 
@@ -163,13 +165,13 @@ class AdminOptionsDashboard extends React.Component {
 				this.async_loading(() => {
 
 					jQuery.ajax({
-						url: adminoptions.wp_rest.root + 'adminoptions/v1/option',
+						url: socket.wp_rest.root + 'socket/v1/option',
 						method: 'POST',
 						beforeSend: function (xhr) {
-							xhr.setRequestHeader('X-WP-Nonce', adminoptions.wp_rest.nonce);
+							xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
 						},
 						data: {
-							'adminoptions_nonce': adminoptions.wp_rest.adminoptions_nonce,
+							'socket_nonce': socket.wp_rest.socket_nonce,
 							name: name,
 							value: value
 						}
@@ -209,13 +211,13 @@ class AdminOptionsDashboard extends React.Component {
 			this.async_loading(() => {
 
 				jQuery.ajax({
-					url: adminoptions.wp_rest.root + 'adminoptions/v1/option',
+					url: socket.wp_rest.root + 'socket/v1/option',
 					method: 'POST',
 					beforeSend: function (xhr) {
-						xhr.setRequestHeader('X-WP-Nonce', adminoptions.wp_rest.nonce);
+						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
 					},
 					data: {
-						'adminoptions_nonce': adminoptions.wp_rest.adminoptions_nonce,
+						'socket_nonce': socket.wp_rest.socket_nonce,
 						name: name,
 						value: (value === 'on' ) ? 1 : 0
 					}
@@ -258,13 +260,13 @@ class AdminOptionsDashboard extends React.Component {
 	update_local_state($state) {
 		this.setState($state, function () {
 			jQuery.ajax({
-				url: adminoptions.wp_rest.root + 'adminoptions/v1/react_state',
+				url: socket.wp_rest.root + 'socket/v1/react_state',
 				method: 'POST',
 				beforeSend: function (xhr) {
-					xhr.setRequestHeader('X-WP-Nonce', adminoptions.wp_rest.nonce);
+					xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
 				},
 				data: {
-					'adminoptions_nonce': adminoptions.wp_rest.adminoptions_nonce,
+					'socket_nonce': socket.wp_rest.socket_nonce,
 					state: this.state
 				}
 			}).done(function (response) {
@@ -275,12 +277,42 @@ class AdminOptionsDashboard extends React.Component {
 
 	add_notices = (state) => {
 		var components = [];
-		var install_data = JSON.parse(adminoptions.install_data);
+		var install_data = JSON.parse(socket.install_data);
 
 		return components;
 	}
 
 
+	clean_the_house = () => {
+		let component = this,
+			test1 = Math.floor((Math.random() * 10) + 1),
+			test2 = Math.floor((Math.random() * 10) + 1),
+			componentNode = ReactDOM.findDOMNode(this)
+
+		var confirm = prompt( "Are you sure you want to reset Pixcare?\n\n\nOK, just do this math: " + test1 + ' + ' + test2 + '=', '' );
+
+		if ( test1 + test2 == confirm ) {
+			jQuery.ajax({
+				url: socket.wp_rest.root + 'socket/v1/cleanup',
+				method: 'POST',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+				},
+				data: {
+					'socket_nonce': socket.wp_rest.socket_nonce,
+					test1: test1,
+					test2: test2,
+					confirm: confirm
+				}
+			}).done(function (response) {
+				if ( response.success ) {
+					console.log( 'done!' );
+				}
+			}).error(function (e) {
+				alert('Sorry I can\'t do this!' );
+			});
+		}
+	}
 }
 
-export default (AdminOptionsDashboard);
+export default (SocketDashboard);

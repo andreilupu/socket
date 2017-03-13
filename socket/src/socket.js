@@ -11,6 +11,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 // import PixelgradeCareNoSupportHere from './components/no_support.js';
-import AdminOptionsDashboard from './components/dashboard.js';
+import SocketDashboard from './components/dashboard.js';
 
-ReactDOM.render(<AdminOptionsDashboard />, document.getElementById('admin_options_dashboard')  );
+ReactDOM.render(<SocketDashboard />, document.getElementById('socket_dashboard')  );
