@@ -1,5 +1,7 @@
-# Admin Options
+# In development
+Socket offers a simple and extensible drag and drop interface to define your theme or plugin options. Based on the REST API, Socket is easily extensible and already support a wide range fields as: select, input or autocomplete.
 
+Easily built your Plugin Options page, place the exported files inside your plugin folder and that’s it — all your options ready to be used.
 
 ### Wishful thinking
 At the version one this repository will stand as a WordPress framework for plugins options. Pretty much something like Options Framework or Redux, Option tree or whatever is out there in the world.
