@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Grid, Image, Container, Segment, Header, Loader, Dimmer, Form, Text, Button, Checkbox, Divider } from 'semantic-ui-react'
+import { Grid, Image, Container, Segment, Header, Loader, Dimmer, Form, Text, Button, Checkbox, Divider, Radio } from 'semantic-ui-react'
 
 class SocketDashboard extends React.Component {
 
@@ -18,6 +18,7 @@ class SocketDashboard extends React.Component {
 		this.handleChange = this.handleChange.bind(this);
 		this.inputHandleChange = this.inputHandleChange.bind(this);
 		this.checkboxHandleChange = this.checkboxHandleChange.bind(this);
+		this.radioHandleChange = this.radioHandleChange.bind(this);
 		this.clean_the_house = this.clean_the_house.bind(this);
 	}
 
@@ -56,7 +57,7 @@ class SocketDashboard extends React.Component {
 				var section_config = socket.config[grid_key];
 
 				// default grid sizes, doc this
-				var sizes = { ...{ computer: 8, tablet: 16 }, ...section_config.sizes };
+				var sizes = { ...{ computer: 16, tablet: 16 }, ...section_config.sizes };
 
 				var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet} mobile={sizes.mobile}>
 					<Segment>
@@ -85,6 +86,22 @@ class SocketDashboard extends React.Component {
 								output = <Form.Field key={field_key}>
 									<label>{field.label}</label>
 									<input placeholder={placeholder} data-name={field_key} onInput={component.inputHandleChange} defaultValue={value} />
+								</Form.Field>
+								break;
+							}
+
+							case 'radio' : {
+								output = <Form.Field key={field_key}>
+										{ Object.keys( field.options ).map(function( opt ){
+
+											return <Radio key={ field_key + opt }
+												label={field.options[opt]}
+												name={field_key}
+												value={opt}
+												checked={value === opt}
+												onChange={component.radioHandleChange}
+											/>
+										})}
 								</Form.Field>
 								break;
 							}
@@ -153,7 +170,6 @@ class SocketDashboard extends React.Component {
 	}
 
 	componentWillMount () {
-
 		this.delayedCallback = _.debounce(function (event) {
 			// `event.target` is accessible now
 			let component = this,
@@ -198,6 +214,49 @@ class SocketDashboard extends React.Component {
 		}, 1000);
 	}
 
+	radioHandleChange( e ) {
+		let component = this,
+			componentNode = ReactDOM.findDOMNode( e.target ).parentNode,
+			input = componentNode.childNodes[0],
+			name = input.name,
+			value = input.value;
+
+		if ( ! this.state.loading ) {
+
+			this.async_loading(() => {
+
+				jQuery.ajax({
+					url: socket.wp_rest.root + 'socket/v1/option',
+					method: 'POST',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+					},
+					data: {
+						'socket_nonce': socket.wp_rest.socket_nonce,
+						name: name,
+						value: value
+					}
+				}).done(function (response) {
+
+					let new_values = component.state.values;
+
+					new_values[name] = value;
+
+					component.setState({
+						loading: false,
+						values: new_values
+					});
+
+				}).error(function ( err ) {
+					component.setState({
+						loading: true,
+					});
+				});
+
+			});
+		}
+
+	}
 
 	checkboxHandleChange( e ) {
 		let component = this,

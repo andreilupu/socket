@@ -62203,6 +62203,7 @@ var SocketDashboard = function (_React$Component) {
 		_this.handleChange = _this.handleChange.bind(_this);
 		_this.inputHandleChange = _this.inputHandleChange.bind(_this);
 		_this.checkboxHandleChange = _this.checkboxHandleChange.bind(_this);
+		_this.radioHandleChange = _this.radioHandleChange.bind(_this);
 		_this.clean_the_house = _this.clean_the_house.bind(_this);
 		return _this;
 	}
@@ -62251,7 +62252,7 @@ var SocketDashboard = function (_React$Component) {
 						var section_config = socket.config[grid_key];
 
 						// default grid sizes, doc this
-						var sizes = _extends({ computer: 8, tablet: 16 }, section_config.sizes);
+						var sizes = _extends({ computer: 16, tablet: 16 }, section_config.sizes);
 
 						var section = _react2.default.createElement(
 							_semanticUiReact.Grid.Column,
@@ -62292,6 +62293,25 @@ var SocketDashboard = function (_React$Component) {
 															field.label
 														),
 														_react2.default.createElement("input", { placeholder: placeholder, "data-name": field_key, onInput: component.inputHandleChange, defaultValue: value })
+													);
+													break;
+												}
+
+											case 'radio':
+												{
+													output = _react2.default.createElement(
+														_semanticUiReact.Form.Field,
+														{ key: field_key },
+														Object.keys(field.options).map(function (opt) {
+
+															return _react2.default.createElement(_semanticUiReact.Radio, { key: field_key + opt,
+																label: field.options[opt],
+																name: field_key,
+																value: opt,
+																checked: value === opt,
+																onChange: component.radioHandleChange
+															});
+														})
 													);
 													break;
 												}
@@ -62387,7 +62407,6 @@ var SocketDashboard = function (_React$Component) {
 	}, {
 		key: "componentWillMount",
 		value: function componentWillMount() {
-
 			this.delayedCallback = _.debounce(function (event) {
 				// `event.target` is accessible now
 				var component = this,
@@ -62427,6 +62446,48 @@ var SocketDashboard = function (_React$Component) {
 					});
 				}
 			}, 1000);
+		}
+	}, {
+		key: "radioHandleChange",
+		value: function radioHandleChange(e) {
+			var component = this,
+			    componentNode = _reactDom2.default.findDOMNode(e.target).parentNode,
+			    input = componentNode.childNodes[0],
+			    name = input.name,
+			    value = input.value;
+
+			if (!this.state.loading) {
+
+				this.async_loading(function () {
+
+					jQuery.ajax({
+						url: socket.wp_rest.root + 'socket/v1/option',
+						method: 'POST',
+						beforeSend: function beforeSend(xhr) {
+							xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+						},
+						data: {
+							'socket_nonce': socket.wp_rest.socket_nonce,
+							name: name,
+							value: value
+						}
+					}).done(function (response) {
+
+						var new_values = component.state.values;
+
+						new_values[name] = value;
+
+						component.setState({
+							loading: false,
+							values: new_values
+						});
+					}).error(function (err) {
+						component.setState({
+							loading: true
+						});
+					});
+				});
+			}
 		}
 	}, {
 		key: "checkboxHandleChange",

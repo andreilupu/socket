@@ -24,17 +24,21 @@
  * @author     Pixelgrade <contact@pixelgrade.com>
  */
 
-add_filter( 'socket_config', function ( $config ) {
+add_filter( 'socket_config_for_socket', function ( $config ) {
 
 	return array(
-
 		'grid_example' => array(
 			'label' => 'Section Name',
 			'items' => array(
-				'first_checkbox'    => array(
-					'type'  => 'checkbox',
-					'label' => 'The check',
-					'default' => 0
+				'firt_radio'    => array(
+					'type'  => 'radio',
+					'label' => 'Radio',
+					'default' => 'test2',
+					'options' => array(
+						'test' => "Label 1",
+						'test2' => "Label 2",
+						'test3' => "Label 3",
+					)
 				),
 				'name'        => array(
 					'type'  => 'text',
@@ -139,7 +143,7 @@ class PluginExampleAdminPage {
 		$this->version = $version;
 		$this->name    = esc_html__( 'Socket Admin Page', 'socket' );
 
-		$this->config = apply_filters( 'socket_config', array() );
+		$this->config = apply_filters( 'socket_config_for_' . $this->key, array() );
 
 		add_action( 'rest_api_init', array( $this, 'add_rest_routes_api' ) );
 
@@ -213,13 +217,11 @@ class PluginExampleAdminPage {
 	 */
 	public function enqueue_scripts() {
 		if ( $this->is_socket_dashboard() ) {
-
 			wp_enqueue_script( 'socket-dashboard', plugin_dir_url( __FILE__ ) . 'socket/js/socket.js', array(
 				'jquery',
 				'wp-util'
 			),
-			filemtime(plugin_dir_path( __FILE__ ) . 'socket/js/socket.js'),
-			true );
+			filemtime(plugin_dir_path( __FILE__ ) . 'socket/js/socket.js'), true );
 
 			$this->localize_js_data( 'socket-dashboard' );
 		}
@@ -332,14 +334,12 @@ class PluginExampleAdminPage {
 	}
 
 	function set_values() {
-		$this->values = get_option( $this->key);
-
+		$this->values = get_option( $this->key );
 		if ( $this->values === false ) {
 			$this->values = $this->defaults;
-		} else if ( count( array_diff_key( $this->defaults, $this->values ) ) != 0 ) {
+		} elseif ( ! empty( $this->defaults ) && count( array_diff_key( $this->defaults, $this->values ) ) != 0 ) {
 			$this->values = array_merge( $this->defaults, $this->values );
 		}
-//		var_dump($this->values);
 	}
 
 	function save_values() {
@@ -388,7 +388,6 @@ class PluginExampleAdminPage {
 
 		return null;
 	}
-
 
 	function array_key_exists_r($needle, $haystack) {
 		$result = array_key_exists($needle, $haystack);
