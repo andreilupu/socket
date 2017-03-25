@@ -1,6 +1,6 @@
 var plugin = 'socket',
-	source_SCSS = { admin: './socket/scss/**/*.scss', public: './socket/scss/**/*.scss'},
-	dest_CSS = { admin:'./socket/css/', public: './socket/css/'},
+	source_SCSS = { admin: './scss/**/*.scss', public: './scss/**/*.scss'},
+	dest_CSS = { admin:'./css/', public: './css/'},
 
 	gulp 		= require('gulp'),
 	sass 		= require('gulp-sass'),
@@ -141,7 +141,7 @@ var reactdom = require('react-dom');
 var babel = require('babelify');
 
 function compile_admin(watch) {
-	var bundler = watchify(browserify('./socket/src/socket.js', { debug: false }).transform(babel, { presets: ["es2015", "stage-0", "react"]}));
+	var bundler = watchify(browserify('./src/socket.js', { debug: false }).transform(babel, { presets: ["es2015", "stage-0", "react"]}));
 
 	function rebundle_admin() {
 		bundler.bundle()
@@ -150,7 +150,7 @@ function compile_admin(watch) {
 			.pipe(buffer())
 			.pipe(sourcemaps.init({ loadMaps: false }))
 			.pipe(sourcemaps.write('./'))
-			.pipe(gulp.dest('./socket/js'));
+			.pipe(gulp.dest('./js'));
 	}
 
 	if (watch) {

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Grid, Image, Container, Segment, Header, Loader, Dimmer, Form, Text, Button, Checkbox, Divider, Radio } from 'semantic-ui-react'
+import { Grid, Image, Container, Segment, Header, Loader, Dimmer, Form, Text, Button, Checkbox, Divider, Radio, Dropdown } from 'semantic-ui-react'
 
 class SocketDashboard extends React.Component {
 
@@ -144,6 +144,18 @@ class SocketDashboard extends React.Component {
 								break;
 							}
 
+							case 'select' : {
+								let dropDownOptions = [];
+
+								{ Object.keys( field.options ).map(function( opt ){
+									dropDownOptions.push({ key: opt, value: opt, text: field.options[opt] });
+								})}
+
+								output = <Form.Field key={field_key}>
+									<Dropdown placeholder={placeholder} search selection defaultValue={value} options={dropDownOptions} onChange={component.radioHandleChange} />
+								</Form.Field>
+								break;
+							}
 							default:
 								break
 						}
@@ -405,10 +417,8 @@ class SocketDashboard extends React.Component {
 	}
 
 	add_notices = (state) => {
-		var components = [];
-		var install_data = JSON.parse(socket.install_data);
-
-		return components;
+		var notices = [];
+		return notices;
 	}
 
 

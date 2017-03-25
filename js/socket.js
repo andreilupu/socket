@@ -62158,10 +62158,8 @@ var SocketDashboard = function (_React$Component) {
 		};
 
 		_this.add_notices = function (state) {
-			var components = [];
-			var install_data = JSON.parse(socket.install_data);
-
-			return components;
+			var notices = [];
+			return notices;
 		};
 
 		_this.clean_the_house = function () {
@@ -62373,6 +62371,23 @@ var SocketDashboard = function (_React$Component) {
 													break;
 												}
 
+											case 'select':
+												{
+													var dropDownOptions = [];
+
+													{
+														Object.keys(field.options).map(function (opt) {
+															dropDownOptions.push({ key: opt, value: opt, text: field.options[opt] });
+														});
+													}
+
+													output = _react2.default.createElement(
+														_semanticUiReact.Form.Field,
+														{ key: field_key },
+														_react2.default.createElement(_semanticUiReact.Dropdown, { placeholder: placeholder, search: true, selection: true, defaultValue: value, options: dropDownOptions, onChange: component.radioHandleChange })
+													);
+													break;
+												}
 											default:
 												break;
 										}
