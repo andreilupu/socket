@@ -62243,19 +62243,20 @@ var SocketDashboard = function (_React$Component) {
 				_react2.default.createElement(
 					_semanticUiReact.Grid,
 					null,
-					Object.keys(socket.config).map(function (grid_key) {
+					Object.keys(socket.config.sockets).map(function (grid_key) {
 						if (typeof grid_key === "undefined") {
 							return false;
 						}
 
-						var section_config = socket.config[grid_key];
+						var section_config = socket.config.sockets[grid_key];
 
 						// default grid sizes, doc this
 						var sizes = _extends({ computer: 16, tablet: 16 }, section_config.sizes);
 
 						var section = _react2.default.createElement(
 							_semanticUiReact.Grid.Column,
-							{ key: grid_key, computer: sizes.computer, tablet: sizes.tablet, mobile: sizes.mobile },
+							{ key: grid_key, computer: sizes.computer, tablet: sizes.tablet,
+								mobile: sizes.mobile },
 							_react2.default.createElement(
 								_semanticUiReact.Segment,
 								null,
@@ -62291,7 +62292,8 @@ var SocketDashboard = function (_React$Component) {
 															null,
 															field.label
 														),
-														_react2.default.createElement("input", { placeholder: placeholder, "data-name": field_key, onInput: component.inputHandleChange, defaultValue: value })
+														_react2.default.createElement("input", { placeholder: placeholder, "data-name": field_key,
+															onInput: component.inputHandleChange, defaultValue: value })
 													);
 													break;
 												}
@@ -62326,7 +62328,8 @@ var SocketDashboard = function (_React$Component) {
 															null,
 															field.label
 														),
-														_react2.default.createElement(_semanticUiReact.Checkbox, { placeholder: placeholder, "data-name": field_key, onChange: component.checkboxHandleChange, defaultChecked: value })
+														_react2.default.createElement(_semanticUiReact.Checkbox, { placeholder: placeholder, "data-name": field_key,
+															onChange: component.checkboxHandleChange, defaultChecked: value })
 													);
 													break;
 												}
@@ -62347,7 +62350,9 @@ var SocketDashboard = function (_React$Component) {
 															return _react2.default.createElement(
 																_semanticUiReact.Form.Field,
 																{ key: field_key + opt },
-																_react2.default.createElement(_semanticUiReact.Checkbox, { label: label, "data-name": field_key, "data-option": opt, onChange: component.multicheckboxHandleChange, defaultChecked: defaultVal })
+																_react2.default.createElement(_semanticUiReact.Checkbox, { label: label, "data-name": field_key, "data-option": opt,
+																	onChange: component.multicheckboxHandleChange,
+																	defaultChecked: defaultVal })
 															);
 														})
 													);
@@ -62366,7 +62371,8 @@ var SocketDashboard = function (_React$Component) {
 															null,
 															field.label
 														),
-														_react2.default.createElement(_semanticUiReact.Checkbox, { toggle: true, placeholder: placeholder, "data-name": field_key, onChange: component.checkboxHandleChange, defaultChecked: value })
+														_react2.default.createElement(_semanticUiReact.Checkbox, { toggle: true, placeholder: placeholder, "data-name": field_key,
+															onChange: component.checkboxHandleChange, defaultChecked: value })
 													);
 													break;
 												}
@@ -62384,7 +62390,8 @@ var SocketDashboard = function (_React$Component) {
 													output = _react2.default.createElement(
 														_semanticUiReact.Form.Field,
 														{ key: field_key },
-														_react2.default.createElement(_semanticUiReact.Dropdown, { placeholder: placeholder, search: true, selection: true, defaultValue: value, options: dropDownOptions, onChange: component.radioHandleChange })
+														_react2.default.createElement(_semanticUiReact.Dropdown, { placeholder: placeholder, search: true, selection: true, defaultValue: value,
+															options: dropDownOptions, onChange: component.radioHandleChange })
 													);
 													break;
 												}

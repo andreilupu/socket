@@ -1,7 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Grid, Image, Container, Segment, Header, Loader, Dimmer, Form, Text, Button, Checkbox, Divider, Radio, Dropdown } from 'semantic-ui-react'
+import {
+	Grid,
+	Image,
+	Container,
+	Segment,
+	Header,
+	Loader,
+	Dimmer,
+	Form,
+	Text,
+	Button,
+	Checkbox,
+	Divider,
+	Radio,
+	Dropdown
+} from 'semantic-ui-react'
 
 class SocketDashboard extends React.Component {
 
@@ -12,7 +27,7 @@ class SocketDashboard extends React.Component {
 		// get the current state localized by wordpress
 		this.state = {
 			loading: false,
-			values: socket.values
+			values: socket.values,
 		};
 
 		this.handleChange = this.handleChange.bind(this);
@@ -29,141 +44,150 @@ class SocketDashboard extends React.Component {
 		return <Segment>
 
 			{ ( component.state.loading === true ) ?
-				<div style={{"position" : 'absolute', "top": 0, "bottom": 0, "right": 0, "left": 0 }} >
+				<div style={{"position": 'absolute', "top": 0, "bottom": 0, "right": 0, "left": 0}}>
 					<Dimmer active>
-						<Loader size='big' />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider inverted />
-						<Divider horizontal inverted >Saving ... wait a second</Divider>
+						<Loader size='big'/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider inverted/>
+						<Divider horizontal inverted>Saving ... wait a second</Divider>
 					</Dimmer>
 				</div>
 				:
 				''
 			}
 
-			<Grid>{ Object.keys( socket.config ).map(function( grid_key ){
-				if ( typeof grid_key === "undefined" ) {
+			<Grid>{ Object.keys(socket.config.sockets).map(function (grid_key) {
+				if (typeof grid_key === "undefined") {
 					return false;
 				}
 
-				var section_config = socket.config[grid_key];
+				var section_config = socket.config.sockets[grid_key];
 
 				// default grid sizes, doc this
-				var sizes = { ...{ computer: 16, tablet: 16 }, ...section_config.sizes };
+				var sizes = {...{computer: 16, tablet: 16}, ...section_config.sizes};
 
-				var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet} mobile={sizes.mobile}>
+				var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet}
+				                           mobile={sizes.mobile}>
 					<Segment>
-					<Header as='h2' key={grid_key} content={section_config.label} subheader={section_config.desc} />
+						<Header as='h2' key={grid_key} content={section_config.label} subheader={section_config.desc}/>
 
-					<Form >
-					{ Object.keys( section_config.items ).map(function( field_key ){
+						<Form >
+							{ Object.keys(section_config.items).map(function (field_key) {
 
-						let field = section_config.items[field_key],
-							value = '';
+								let field = section_config.items[field_key],
+									value = '';
 
-						if ( typeof component.state.values[field_key] !== "undefined" ) {
-							value = component.state.values[field_key];
-						}
+								if (typeof component.state.values[field_key] !== "undefined") {
+									value = component.state.values[field_key];
+								}
 
-						var output = null,
-							placeholder = '';
+								var output = null,
+									placeholder = '';
 
-						if ( typeof field.placeholder !== "undefined" ) {
-							placeholder = field.placeholder;
-						}
+								if (typeof field.placeholder !== "undefined") {
+									placeholder = field.placeholder;
+								}
 
-						switch ( field.type ) {
-							case 'text' : {
+								switch (field.type) {
+									case 'text' : {
 
-								output = <Form.Field key={field_key}>
-									<label>{field.label}</label>
-									<input placeholder={placeholder} data-name={field_key} onInput={component.inputHandleChange} defaultValue={value} />
-								</Form.Field>
-								break;
-							}
+										output = <Form.Field key={field_key}>
+											<label>{field.label}</label>
+											<input placeholder={placeholder} data-name={field_key}
+											       onInput={component.inputHandleChange} defaultValue={value}/>
+										</Form.Field>
+										break;
+									}
 
-							case 'radio' : {
-								output = <Form.Field key={field_key}>
-									{ Object.keys( field.options ).map(function( opt ){
-										return <Radio key={ field_key + opt }
-											label={field.options[opt]}
-											name={field_key}
-											value={opt}
-											checked={value === opt}
-											onChange={component.radioHandleChange}
-										/>
-									})}
-								</Form.Field>
-								break;
-							}
+									case 'radio' : {
+										output = <Form.Field key={field_key}>
+											{ Object.keys(field.options).map(function (opt) {
+												return <Radio key={ field_key + opt }
+												              label={field.options[opt]}
+												              name={field_key}
+												              value={opt}
+												              checked={value === opt}
+												              onChange={component.radioHandleChange}
+												/>
+											})}
+										</Form.Field>
+										break;
+									}
 
-							case 'checkbox' : {
-								value = component.validate_options_for_checkboxes(value);
+									case 'checkbox' : {
+										value = component.validate_options_for_checkboxes(value);
 
-								output = <Form.Field key={field_key}>
-									<label>{field.label}</label>
-									<Checkbox placeholder={placeholder} data-name={field_key} onChange={component.checkboxHandleChange} defaultChecked={value} />
-								</Form.Field>
-								break;
-							}
+										output = <Form.Field key={field_key}>
+											<label>{field.label}</label>
+											<Checkbox placeholder={placeholder} data-name={field_key}
+											          onChange={component.checkboxHandleChange} defaultChecked={value}/>
+										</Form.Field>
+										break;
+									}
 
-							case 'multicheckbox' : {
-								output = <Segment key={field_key}>
-									{ Object.keys( field.options ).map(function( opt ){
-										let label = field.options[opt],
-											defaultVal = false;
+									case 'multicheckbox' : {
+										output = <Segment key={field_key}>
+											{ Object.keys(field.options).map(function (opt) {
+												let label = field.options[opt],
+													defaultVal = false;
 
-										if ( typeof value[opt] !== "undefined" && value[opt] === 'on' ) {
-											defaultVal = true;
+												if (typeof value[opt] !== "undefined" && value[opt] === 'on') {
+													defaultVal = true;
+												}
+
+												return <Form.Field key={ field_key + opt }>
+													<Checkbox label={label} data-name={field_key} data-option={opt}
+													          onChange={component.multicheckboxHandleChange}
+													          defaultChecked={defaultVal}/>
+												</Form.Field>
+											})}
+										</Segment>
+										break;
+									}
+
+									case 'toggle' : {
+										value = component.validate_options_for_checkboxes(value);
+
+										output = <Form.Field key={field_key}>
+											<label>{field.label}</label>
+											<Checkbox toggle placeholder={placeholder} data-name={field_key}
+											          onChange={component.checkboxHandleChange} defaultChecked={value}/>
+										</Form.Field>
+										break;
+									}
+
+									case 'select' : {
+										let dropDownOptions = [];
+
+										{
+											Object.keys(field.options).map(function (opt) {
+												dropDownOptions.push({key: opt, value: opt, text: field.options[opt]});
+											})
 										}
 
-										return <Form.Field key={ field_key + opt }>
-											<Checkbox label={label} data-name={field_key} data-option={opt} onChange={component.multicheckboxHandleChange} defaultChecked={defaultVal}/>
+										output = <Form.Field key={field_key}>
+											<Dropdown placeholder={placeholder} search selection defaultValue={value}
+											          options={dropDownOptions} onChange={component.radioHandleChange}/>
 										</Form.Field>
-									})}
-								</Segment>
-								break;
-							}
+										break;
+									}
+									default:
+										break
+								}
 
-							case 'toggle' : {
-								value = component.validate_options_for_checkboxes(value);
-
-								output = <Form.Field key={field_key}>
-									<label>{field.label}</label>
-									<Checkbox toggle placeholder={placeholder} data-name={field_key} onChange={component.checkboxHandleChange} defaultChecked={value} />
-								</Form.Field>
-								break;
-							}
-
-							case 'select' : {
-								let dropDownOptions = [];
-
-								{ Object.keys( field.options ).map(function( opt ){
-									dropDownOptions.push({ key: opt, value: opt, text: field.options[opt] });
-								})}
-
-								output = <Form.Field key={field_key}>
-									<Dropdown placeholder={placeholder} search selection defaultValue={value} options={dropDownOptions} onChange={component.radioHandleChange} />
-								</Form.Field>
-								break;
-							}
-							default:
-								break
-						}
-
-						return output
-					})}
-					</Form>
-				</Segment>
+								return output
+							})}
+						</Form>
+					</Segment>
 				</Grid.Column>
 
 				return section
@@ -177,9 +201,9 @@ class SocketDashboard extends React.Component {
 		</Segment>
 	}
 
-	validate_options_for_checkboxes( value ) {
+	validate_options_for_checkboxes(value) {
 
-		if ( typeof value === 'number' ) {
+		if (typeof value === 'number') {
 			return ( value == 1 );
 		}
 
@@ -192,21 +216,21 @@ class SocketDashboard extends React.Component {
 		return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
 	}
 
-	inputHandleChange( e ) {
+	inputHandleChange(e) {
 		e.persist();
 
 		// every time a user types we need to delay tthis events until he stops typing
 		this.delayedCallback(e);
 	}
 
-	componentWillMount () {
+	componentWillMount() {
 		this.delayedCallback = _.debounce(function (event) {
 			// `event.target` is accessible now
 			let component = this,
 				name = event.target.dataset.name,
 				value = event.target.value;
 
-			if ( ! this.state.loading ) {
+			if (!this.state.loading) {
 
 				this.async_loading(() => {
 
@@ -232,7 +256,7 @@ class SocketDashboard extends React.Component {
 							values: new_values
 						});
 
-					}).error(function ( err ) {
+					}).error(function (err) {
 						component.setState({
 							loading: true,
 						});
@@ -244,14 +268,14 @@ class SocketDashboard extends React.Component {
 		}, 1000);
 	}
 
-	radioHandleChange( e ) {
+	radioHandleChange(e) {
 		let component = this,
-			componentNode = ReactDOM.findDOMNode( e.target ).parentNode,
+			componentNode = ReactDOM.findDOMNode(e.target).parentNode,
 			input = componentNode.childNodes[0],
 			name = input.name,
 			value = input.value;
 
-		if ( ! this.state.loading ) {
+		if (!this.state.loading) {
 
 			this.async_loading(() => {
 
@@ -277,7 +301,7 @@ class SocketDashboard extends React.Component {
 						values: new_values
 					});
 
-				}).error(function ( err ) {
+				}).error(function (err) {
 					component.setState({
 						loading: true,
 					});
@@ -288,14 +312,14 @@ class SocketDashboard extends React.Component {
 
 	}
 
-	checkboxHandleChange( e ) {
+	checkboxHandleChange(e) {
 		let component = this,
-			componentNode = ReactDOM.findDOMNode( e.target ).parentNode,
+			componentNode = ReactDOM.findDOMNode(e.target).parentNode,
 			input = componentNode.childNodes[0],
 			name = componentNode.dataset.name,
 			value = input.value;
 
-		if ( ! this.state.loading ) {
+		if (!this.state.loading) {
 
 			this.async_loading(() => {
 
@@ -321,7 +345,7 @@ class SocketDashboard extends React.Component {
 						values: new_values
 					});
 
-				}).error(function ( err ) {
+				}).error(function (err) {
 					component.setState({
 						loading: true,
 					});
@@ -332,22 +356,22 @@ class SocketDashboard extends React.Component {
 
 	}
 
-	multicheckboxHandleChange( e ) {
+	multicheckboxHandleChange(e) {
 		let component = this,
-			componentNode = ReactDOM.findDOMNode( e.target ).parentNode,
+			componentNode = ReactDOM.findDOMNode(e.target).parentNode,
 			input = componentNode.childNodes[0],
 			name = componentNode.dataset.name,
 			option = componentNode.dataset.option,
 			checked = !input.checked,
 			value = component.state.values[name];
 
-		if ( checked ) {
+		if (checked) {
 			value[option] = 'on';
 		} else {
 			delete value[option];
 		}
 
-		if ( ! this.state.loading ) {
+		if (!this.state.loading) {
 
 			this.async_loading(() => {
 
@@ -373,7 +397,7 @@ class SocketDashboard extends React.Component {
 						values: new_values
 					});
 
-				}).error(function ( err ) {
+				}).error(function (err) {
 					component.setState({
 						loading: true,
 					});
@@ -384,9 +408,9 @@ class SocketDashboard extends React.Component {
 
 	}
 
-	handleChange( e ) {
+	handleChange(e) {
 
-		console.log( this );
+		console.log(this);
 
 		console.debug(e.target.value);
 
@@ -394,7 +418,7 @@ class SocketDashboard extends React.Component {
 
 	async_loading = (cb) => {
 		this.setState({loading: true}, () => {
-			this.asyncTimer = setTimeout( cb, 500 );
+			this.asyncTimer = setTimeout(cb, 500);
 		});
 	};
 
@@ -428,9 +452,9 @@ class SocketDashboard extends React.Component {
 			test2 = Math.floor((Math.random() * 10) + 1),
 			componentNode = ReactDOM.findDOMNode(this)
 
-		var confirm = prompt( "Are you sure you want to reset Pixcare?\n\n\nOK, just do this math: " + test1 + ' + ' + test2 + '=', '' );
+		var confirm = prompt("Are you sure you want to reset Pixcare?\n\n\nOK, just do this math: " + test1 + ' + ' + test2 + '=', '');
 
-		if ( test1 + test2 == confirm ) {
+		if (test1 + test2 == confirm) {
 			jQuery.ajax({
 				url: socket.wp_rest.root + 'socket/v1/cleanup',
 				method: 'POST',
@@ -444,11 +468,11 @@ class SocketDashboard extends React.Component {
 					confirm: confirm
 				}
 			}).done(function (response) {
-				if ( response.success ) {
-					console.log( 'done!' );
+				if (response.success) {
+					console.log('done!');
 				}
 			}).error(function (e) {
-				alert('Sorry I can\'t do this!' );
+				alert('Sorry I can\'t do this!');
 			});
 		}
 	}

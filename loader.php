@@ -10,23 +10,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-if ( ! class_exists('WP_Socket') ) {
+if ( ! class_exists( 'WP_Socket' ) ) {
 
 	class WP_Socket {
 
-		private $values;
-
 		private $config;
+
+		private $values;
 
 		private $defaults;
 
-		private $key = 'socket';
+		private $plugin = 'socket';
+
+		private $options_key = 'socket';
+
+		private $page_title;
+
+		private $nav_label;
 
 		public function __construct( $plugin ) {
-			$this->key = $plugin;
-			$this->name    = esc_html__( 'Socket Admin Page', 'socket' );
+			$this->plugin = $plugin;
 
-			$this->config = apply_filters( 'socket_config_for_' . $this->key, array() );
+			$this->page_title = $this->nav_label = esc_html__( 'Socket Admin Page', 'socket' );
+
+			$this->config = apply_filters( 'socket_config_for_' . $this->plugin, array() );
+
+			if ( ! empty( $this->config['options_key'] ) ) {
+				$this->options_key = $this->config['options_key'];
+			}
+
+			if ( ! empty( $this->config['page_title'] ) ) {
+				$this->page_title = $this->config['page_title'];
+			}
+
+			if ( ! empty( $this->config['nav_label'] ) ) {
+				$this->nav_label = $this->config['nav_label'];
+			}
 
 			add_action( 'rest_api_init', array( $this, 'add_rest_routes_api' ) );
 
@@ -59,10 +78,17 @@ if ( ! class_exists('WP_Socket') ) {
 
 		// Register a settings page
 		function add_admin_menu() {
-			$admin_page = add_submenu_page( 'options-general.php', $this->name, $this->name, 'manage_options', 'socket', array(
-				$this,
-				'socket_options_page'
-			) );
+			$admin_page = add_submenu_page(
+				'options-general.php',
+				$this->page_title,
+				$this->nav_label,
+				'manage_options',
+				$this->plugin,
+				array(
+					$this,
+					'socket_options_page'
+				)
+			);
 		}
 
 		function socket_options_page() {
@@ -71,7 +97,7 @@ if ( ! class_exists('WP_Socket') ) {
 			<div class="wrap">
 				<div class="socket-wrapper">
 					<header class="title">
-						<h1 class="page-title"><?php echo $this->name ?></h1>
+						<h1 class="page-title"><?php echo $this->page_title ?></h1>
 						<div class="description"><?php echo $this->description ?></div>
 					</header>
 					<div class="content">
@@ -87,13 +113,11 @@ if ( ! class_exists('WP_Socket') ) {
 
 			add_settings_section(
 				'socket_section',
-				$this->name . esc_html__( ' My plugin description description', 'socket' ),
+				$this->page_title . esc_html__( ' My plugin description description', 'socket' ),
 				null,
 				'socket'
 			);
 		}
-
-
 
 		/**
 		 * Register the stylesheets for the admin area.
@@ -104,9 +128,9 @@ if ( ! class_exists('WP_Socket') ) {
 			if ( $this->is_socket_dashboard() ) {
 				wp_enqueue_style(
 					'socket-dashboard',
-					plugin_dir_url( __FILE__ ) . 'socket/css/socket.css',
+					plugin_dir_url( __FILE__ ) . 'css/socket.css',
 					array(),
-					filemtime(plugin_dir_path( __FILE__ ) . 'socket/css/socket.css'),
+					filemtime( plugin_dir_path( __FILE__ ) . 'css/socket.css' ),
 					'all'
 				);
 			}
@@ -119,23 +143,23 @@ if ( ! class_exists('WP_Socket') ) {
 		 */
 		public function enqueue_scripts() {
 			if ( $this->is_socket_dashboard() ) {
-				wp_enqueue_script( 'socket-dashboard', plugin_dir_url( __FILE__ ) . 'socket/js/socket.js', array(
+				wp_enqueue_script( 'socket-dashboard', plugin_dir_url( __FILE__ ) . 'js/socket.js', array(
 					'jquery',
 					'wp-util'
 				),
-					filemtime(plugin_dir_path( __FILE__ ) . 'socket/js/socket.js'), true );
+					filemtime( plugin_dir_path( __FILE__ ) . 'js/socket.js' ), true );
 
 				$this->localize_js_data( 'socket-dashboard' );
 			}
 		}
 
-		function localize_js_data( $key ) {
+		function localize_js_data( $script ) {
 			$values = $this->get_option( 'state' );
 
 			$localized_data = array(
 				'wp_rest'   => array(
-					'root'               => esc_url_raw( rest_url() ),
-					'nonce'              => wp_create_nonce( 'wp_rest' ),
+					'root'         => esc_url_raw( rest_url() ),
+					'nonce'        => wp_create_nonce( 'wp_rest' ),
 					'socket_nonce' => wp_create_nonce( 'socket_rest' )
 				),
 				'admin_url' => admin_url(),
@@ -143,31 +167,30 @@ if ( ! class_exists('WP_Socket') ) {
 				'values'    => $this->values
 			);
 
-			wp_localize_script( $key, 'socket', $localized_data );
+			wp_localize_script( $script, 'socket', $localized_data );
 		}
 
 		function add_rest_routes_api() {
 			//The Following registers an api route with multiple parameters.
-			register_rest_route( 'socket/v1', '/option', array(
+			register_rest_route( $this->plugin . '/v1', '/option', array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_state' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' )
 			) );
 
-			register_rest_route( 'socket/v1', '/option', array(
+			register_rest_route( $this->plugin . '/v1', '/option', array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_set_state' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' )
 			) );
 
 			// debug tools
-			register_rest_route( 'socket/v1', '/cleanup', array(
+			register_rest_route( $this->plugin . '/v1', '/cleanup', array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_cleanup' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' ),
 			) );
 		}
-
 
 
 		function permission_nonce_callback() {
@@ -198,7 +221,7 @@ if ( ! class_exists('WP_Socket') ) {
 
 			$option_value = $_POST['value'];
 
-			$this->values[$option_name] = $option_value;
+			$this->values[ $option_name ] = $option_value;
 			wp_send_json_success( $this->save_values() );
 		}
 
@@ -212,7 +235,7 @@ if ( ! class_exists('WP_Socket') ) {
 			if ( (int) $_POST['test1'] + (int) $_POST['test2'] === (int) $_POST['confirm'] ) {
 				$current_user = _wp_get_current_user();
 
-				$this->values= array();
+				$this->values = array();
 				wp_send_json_success( $this->save_values() );
 
 				wp_send_json_success( 'ok' );
@@ -229,7 +252,7 @@ if ( ! class_exists('WP_Socket') ) {
 		 * Helpers
 		 **/
 		function is_socket_dashboard() {
-			if ( ! empty( $_GET['page'] ) && 'socket' === $_GET['page'] ) {
+			if ( ! empty( $_GET['page'] ) && $this->plugin === $_GET['page'] ) {
 				return true;
 			}
 
@@ -237,7 +260,7 @@ if ( ! class_exists('WP_Socket') ) {
 		}
 
 		function set_values() {
-			$this->values = get_option( $this->key );
+			$this->values = get_option( $this->plugin );
 			if ( $this->values === false ) {
 				$this->values = $this->defaults;
 			} elseif ( ! empty( $this->defaults ) && count( array_diff_key( $this->defaults, $this->values ) ) != 0 ) {
@@ -246,7 +269,7 @@ if ( ! class_exists('WP_Socket') ) {
 		}
 
 		function save_values() {
-			return update_option( $this->key, $this->values );
+			return update_option( $this->plugin, $this->values );
 		}
 
 		function set_defaults( $array ) {
@@ -259,10 +282,10 @@ if ( ! class_exists('WP_Socket') ) {
 						continue;
 					}
 
-					$result = array_key_exists('default', $value);
+					$result = array_key_exists( 'default', $value );
 
 					if ( $result ) {
-						$this->defaults[$key] = $value['default'];
+						$this->defaults[ $key ] = $value['default'];
 					} elseif ( is_array( $value ) ) {
 						$this->set_defaults( $value );
 					}
@@ -292,18 +315,18 @@ if ( ! class_exists('WP_Socket') ) {
 			return null;
 		}
 
-		function array_key_exists_r($needle, $haystack) {
-			$result = array_key_exists($needle, $haystack);
+		function array_key_exists_r( $needle, $haystack ) {
+			$result = array_key_exists( $needle, $haystack );
 
-			if ($result) {
+			if ( $result ) {
 				return $result;
 			}
 
-			foreach ($haystack as $v) {
-				if (is_array($v)) {
-					$result = array_key_exists_r($needle, $v);
+			foreach ( $haystack as $v ) {
+				if ( is_array( $v ) ) {
+					$result = array_key_exists_r( $needle, $v );
 				}
-				if ($result) {
+				if ( $result ) {
 					return $result;
 				}
 			}
