@@ -62204,6 +62204,7 @@ var SocketDashboard = function (_React$Component) {
 		_this.inputHandleChange = _this.inputHandleChange.bind(_this);
 		_this.checkboxHandleChange = _this.checkboxHandleChange.bind(_this);
 		_this.radioHandleChange = _this.radioHandleChange.bind(_this);
+		_this.multicheckboxHandleChange = _this.multicheckboxHandleChange.bind(_this);
 		_this.clean_the_house = _this.clean_the_house.bind(_this);
 		return _this;
 	}
@@ -62303,7 +62304,6 @@ var SocketDashboard = function (_React$Component) {
 														_semanticUiReact.Form.Field,
 														{ key: field_key },
 														Object.keys(field.options).map(function (opt) {
-
 															return _react2.default.createElement(_semanticUiReact.Radio, { key: field_key + opt,
 																label: field.options[opt],
 																name: field_key,
@@ -62329,6 +62329,29 @@ var SocketDashboard = function (_React$Component) {
 															field.label
 														),
 														_react2.default.createElement(_semanticUiReact.Checkbox, { placeholder: placeholder, "data-name": field_key, onChange: component.checkboxHandleChange, defaultChecked: value })
+													);
+													break;
+												}
+
+											case 'multicheckbox':
+												{
+													output = _react2.default.createElement(
+														_semanticUiReact.Segment,
+														{ key: field_key },
+														Object.keys(field.options).map(function (opt) {
+															var label = field.options[opt],
+															    defaultVal = false;
+
+															if (typeof value[opt] !== "undefined" && value[opt] === 'on') {
+																defaultVal = true;
+															}
+
+															return _react2.default.createElement(
+																_semanticUiReact.Form.Field,
+																{ key: field_key + opt },
+																_react2.default.createElement(_semanticUiReact.Checkbox, { label: label, "data-name": field_key, "data-option": opt, onChange: component.multicheckboxHandleChange, defaultChecked: defaultVal })
+															);
+														})
 													);
 													break;
 												}
@@ -62512,6 +62535,56 @@ var SocketDashboard = function (_React$Component) {
 							'socket_nonce': socket.wp_rest.socket_nonce,
 							name: name,
 							value: value === 'on' ? 1 : 0
+						}
+					}).done(function (response) {
+
+						var new_values = component.state.values;
+
+						new_values[name] = value;
+
+						component.setState({
+							loading: false,
+							values: new_values
+						});
+					}).error(function (err) {
+						component.setState({
+							loading: true
+						});
+					});
+				});
+			}
+		}
+	}, {
+		key: "multicheckboxHandleChange",
+		value: function multicheckboxHandleChange(e) {
+			var component = this,
+			    componentNode = _reactDom2.default.findDOMNode(e.target).parentNode,
+			    input = componentNode.childNodes[0],
+			    name = componentNode.dataset.name,
+			    option = componentNode.dataset.option,
+			    checked = !input.checked,
+			    value = component.state.values[name];
+
+			if (checked) {
+				value[option] = 'on';
+			} else {
+				delete value[option];
+			}
+
+			if (!this.state.loading) {
+
+				this.async_loading(function () {
+
+					jQuery.ajax({
+						url: socket.wp_rest.root + 'socket/v1/option',
+						method: 'POST',
+						beforeSend: function beforeSend(xhr) {
+							xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+						},
+						data: {
+							'socket_nonce': socket.wp_rest.socket_nonce,
+							name: name,
+							value: value
 						}
 					}).done(function (response) {
 

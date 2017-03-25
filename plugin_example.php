@@ -24,12 +24,28 @@
  * @author     Pixelgrade <contact@pixelgrade.com>
  */
 
+//var_dump( get_option('pixcustomify_settings'));
 add_filter( 'socket_config_for_socket', function ( $config ) {
 
 	return array(
 		'grid_example' => array(
 			'label' => 'Section Name',
 			'items' => array(
+				'fmulticheckbox'    => array(
+					'type'  => 'multicheckbox',
+					'label' => 'Multi checks',
+					'default' => array(
+						'test2' => 'on',
+						'test4' => 'on',
+					),
+					'options' => array(
+						'test' => "Label 1",
+						'test2' => "Label 2",
+						'test3' => "Label 3",
+						'test4' => "Label 4",
+						'test5' => "Label 5",
+					)
+				),
 				'firt_radio'    => array(
 					'type'  => 'radio',
 					'label' => 'Radio',

@@ -19,6 +19,7 @@ class SocketDashboard extends React.Component {
 		this.inputHandleChange = this.inputHandleChange.bind(this);
 		this.checkboxHandleChange = this.checkboxHandleChange.bind(this);
 		this.radioHandleChange = this.radioHandleChange.bind(this);
+		this.multicheckboxHandleChange = this.multicheckboxHandleChange.bind(this);
 		this.clean_the_house = this.clean_the_house.bind(this);
 	}
 
@@ -92,16 +93,15 @@ class SocketDashboard extends React.Component {
 
 							case 'radio' : {
 								output = <Form.Field key={field_key}>
-										{ Object.keys( field.options ).map(function( opt ){
-
-											return <Radio key={ field_key + opt }
-												label={field.options[opt]}
-												name={field_key}
-												value={opt}
-												checked={value === opt}
-												onChange={component.radioHandleChange}
-											/>
-										})}
+									{ Object.keys( field.options ).map(function( opt ){
+										return <Radio key={ field_key + opt }
+											label={field.options[opt]}
+											name={field_key}
+											value={opt}
+											checked={value === opt}
+											onChange={component.radioHandleChange}
+										/>
+									})}
 								</Form.Field>
 								break;
 							}
@@ -113,6 +113,24 @@ class SocketDashboard extends React.Component {
 									<label>{field.label}</label>
 									<Checkbox placeholder={placeholder} data-name={field_key} onChange={component.checkboxHandleChange} defaultChecked={value} />
 								</Form.Field>
+								break;
+							}
+
+							case 'multicheckbox' : {
+								output = <Segment key={field_key}>
+									{ Object.keys( field.options ).map(function( opt ){
+										let label = field.options[opt],
+											defaultVal = false;
+
+										if ( typeof value[opt] !== "undefined" && value[opt] === 'on' ) {
+											defaultVal = true;
+										}
+
+										return <Form.Field key={ field_key + opt }>
+											<Checkbox label={label} data-name={field_key} data-option={opt} onChange={component.multicheckboxHandleChange} defaultChecked={defaultVal}/>
+										</Form.Field>
+									})}
+								</Segment>
 								break;
 							}
 
@@ -279,6 +297,58 @@ class SocketDashboard extends React.Component {
 						'socket_nonce': socket.wp_rest.socket_nonce,
 						name: name,
 						value: (value === 'on' ) ? 1 : 0
+					}
+				}).done(function (response) {
+
+					let new_values = component.state.values;
+
+					new_values[name] = value;
+
+					component.setState({
+						loading: false,
+						values: new_values
+					});
+
+				}).error(function ( err ) {
+					component.setState({
+						loading: true,
+					});
+				});
+
+			});
+		}
+
+	}
+
+	multicheckboxHandleChange( e ) {
+		let component = this,
+			componentNode = ReactDOM.findDOMNode( e.target ).parentNode,
+			input = componentNode.childNodes[0],
+			name = componentNode.dataset.name,
+			option = componentNode.dataset.option,
+			checked = !input.checked,
+			value = component.state.values[name];
+
+		if ( checked ) {
+			value[option] = 'on';
+		} else {
+			delete value[option];
+		}
+
+		if ( ! this.state.loading ) {
+
+			this.async_loading(() => {
+
+				jQuery.ajax({
+					url: socket.wp_rest.root + 'socket/v1/option',
+					method: 'POST',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+					},
+					data: {
+						'socket_nonce': socket.wp_rest.socket_nonce,
+						name: name,
+						value: value
 					}
 				}).done(function (response) {
 
