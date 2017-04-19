@@ -98,7 +98,7 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 				<div class="socket-wrapper">
 					<header class="title">
 						<h1 class="page-title"><?php echo $this->page_title ?></h1>
-						<div class="description"><?php echo $this->description ?></div>
+<!--						<div class="description">--><?php //echo $this->description ?><!--</div>-->
 					</header>
 					<div class="content">
 						<div id="socket_dashboard"></div>
@@ -143,9 +143,13 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 		 */
 		public function enqueue_scripts() {
 			if ( $this->is_socket_dashboard() ) {
+
+				wp_enqueue_media();
+
 				wp_enqueue_script( 'socket-dashboard', plugin_dir_url( __FILE__ ) . 'js/socket.js', array(
 					'jquery',
-					'wp-util'
+					'wp-util',
+					'wp-api'
 				),
 					filemtime( plugin_dir_path( __FILE__ ) . 'js/socket.js' ), true );
 
@@ -172,20 +176,21 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 
 		function add_rest_routes_api() {
 			//The Following registers an api route with multiple parameters.
-			register_rest_route( $this->plugin . '/v1', '/option', array(
+			$route = 'socket';
+			register_rest_route( $route . '/v1', '/option', array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_state' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' )
 			) );
 
-			register_rest_route( $this->plugin . '/v1', '/option', array(
+			register_rest_route( $route . '/v1', '/option', array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_set_state' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' )
 			) );
 
 			// debug tools
-			register_rest_route( $this->plugin . '/v1', '/cleanup', array(
+			register_rest_route( $route . '/v1', '/cleanup', array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_cleanup' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' ),
@@ -222,6 +227,7 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 			$option_value = $_POST['value'];
 
 			$this->values[ $option_name ] = $option_value;
+
 			wp_send_json_success( $this->save_values() );
 		}
 

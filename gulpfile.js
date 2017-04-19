@@ -141,14 +141,14 @@ var reactdom = require('react-dom');
 var babel = require('babelify');
 
 function compile_admin(watch) {
-	var bundler = watchify(browserify('./src/socket.js', { debug: false }).transform(babel, { presets: ["es2015", "stage-0", "react"]}));
+	var bundler = watchify(browserify('./src/socket.js', { debug: true }).transform(babel, { presets: ["es2015", "stage-0", "react"]}));
 
 	function rebundle_admin() {
 		bundler.bundle()
 			.on('error', function(err) { console.error(err); this.emit('end'); })
 			.pipe(source('socket.js'))
 			.pipe(buffer())
-			.pipe(sourcemaps.init({ loadMaps: false }))
+			.pipe(sourcemaps.init({ loadMaps: true }))
 			.pipe(sourcemaps.write('./'))
 			.pipe(gulp.dest('./js'));
 	}

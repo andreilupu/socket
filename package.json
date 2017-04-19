@@ -29,18 +29,14 @@
     "gulp-ruby-sass": "~0.7.1",
     "gulp-sass": "^3.1.0",
     "gulp-sourcemaps": "^2.4.0",
-    "material-ui": "^0.16.7",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
     "react-tap-event-plugin": "^2.0.1",
-    "rtlcss": "*",
-    "semantic-ui": "^2.2.9",
+    "semantic-ui": "^2.2.10",
+    "semantic-ui-react": "^0.68.0",
     "susy": "^2.2.12",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.9.0"
-  },
-  "dependencies": {
-    "semantic-ui-react": "^0.66.0"
   }
 }

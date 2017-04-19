@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import SocketPostSelect from "./postSelect.js";
+import SocketTaxSelect from "./taxSelect.js";
 
 import {
 	Grid,
@@ -36,6 +38,7 @@ class SocketDashboard extends React.Component {
 		this.radioHandleChange = this.radioHandleChange.bind(this);
 		this.multicheckboxHandleChange = this.multicheckboxHandleChange.bind(this);
 		this.clean_the_house = this.clean_the_house.bind(this);
+		this.setup_loading_flag = this.setup_loading_flag.bind(this);
 	}
 
 	render() {
@@ -45,7 +48,7 @@ class SocketDashboard extends React.Component {
 
 			{ ( component.state.loading === true ) ?
 				<div style={{"position": 'absolute', "top": 0, "bottom": 0, "right": 0, "left": 0}}>
-					<Dimmer active>
+					<Dimmer active inverted>
 						<Loader size='big'/>
 						<Divider inverted/>
 						<Divider inverted/>
@@ -168,18 +171,40 @@ class SocketDashboard extends React.Component {
 									case 'select' : {
 										let dropDownOptions = [];
 
-										{
-											Object.keys(field.options).map(function (opt) {
-												dropDownOptions.push({key: opt, value: opt, text: field.options[opt]});
-											})
-										}
+										{Object.keys(field.options).map(function (opt) {
+											dropDownOptions.push({key: opt, value: opt, text: field.options[opt]});
+										})}
 
 										output = <Form.Field key={field_key}>
-											<Dropdown placeholder={placeholder} search selection defaultValue={value}
-											          options={dropDownOptions} onChange={component.radioHandleChange}/>
+											<Dropdown
+												placeholder={placeholder}
+												search
+												selection
+												defaultValue={value}
+												options={dropDownOptions}
+												onChange={component.radioHandleChange}/>
 										</Form.Field>
 										break;
 									}
+
+									case 'post_select' : {
+										if ( '' === value ) {
+											value = []
+										}
+
+										output = <SocketPostSelect key={field_key} name={field_key} value={value} field={field} placeholder={placeholder} setup_loading_flag={component.setup_loading_flag} />
+										break;
+									}
+
+									case 'tax_select' : {
+										if ( '' === value ) {
+											value = []
+										}
+
+										output = <SocketTaxSelect key={field_key} name={field_key} value={value} field={field} placeholder={placeholder} setup_loading_flag={component.setup_loading_flag} />
+										break;
+									}
+
 									default:
 										break
 								}
@@ -202,7 +227,6 @@ class SocketDashboard extends React.Component {
 	}
 
 	validate_options_for_checkboxes(value) {
-
 		if (typeof value === 'number') {
 			return ( value == 1 );
 		}
@@ -306,10 +330,8 @@ class SocketDashboard extends React.Component {
 						loading: true,
 					});
 				});
-
 			});
 		}
-
 	}
 
 	checkboxHandleChange(e) {
@@ -445,6 +467,9 @@ class SocketDashboard extends React.Component {
 		return notices;
 	}
 
+	setup_loading_flag( $val ){
+		this.setState( { loading: $val })
+	}
 
 	clean_the_house = () => {
 		let component = this,
