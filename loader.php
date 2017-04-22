@@ -22,14 +22,23 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 
 		private $plugin = 'socket';
 
+		private $api_base = 'socket';
+
 		private $options_key = 'socket';
 
 		private $page_title;
 
 		private $nav_label;
 
-		public function __construct( $plugin ) {
-			$this->plugin = $plugin;
+		public function __construct( $args ) {
+
+			if ( empty( $args['api_base'] ) || empty( $args['plugin'] ) ) {
+				return ;
+			}
+
+			$this->plugin = $args['plugin'];
+
+			$this->api_base = $args['api_base'];
 
 			$this->page_title = $this->nav_label = esc_html__( 'Socket Admin Page', 'socket' );
 
@@ -163,6 +172,7 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 			$localized_data = array(
 				'wp_rest'   => array(
 					'root'         => esc_url_raw( rest_url() ),
+					'api_base'     => $this->api_base,
 					'nonce'        => wp_create_nonce( 'wp_rest' ),
 					'socket_nonce' => wp_create_nonce( 'socket_rest' )
 				),
@@ -177,20 +187,20 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 		function add_rest_routes_api() {
 			//The Following registers an api route with multiple parameters.
 			$route = 'socket';
-			register_rest_route( $route . '/v1', '/option', array(
+			register_rest_route( $this->api_base, '/option', array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_state' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' )
 			) );
 
-			register_rest_route( $route . '/v1', '/option', array(
+			register_rest_route( $this->api_base, '/option', array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_set_state' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' )
 			) );
 
 			// debug tools
-			register_rest_route( $route . '/v1', '/cleanup', array(
+			register_rest_route( $this->api_base, '/cleanup', array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_cleanup' ),
 				'permission_callback' => array( $this, 'permission_nonce_callback' ),
@@ -216,21 +226,30 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 		}
 
 		function rest_set_state() {
-			if ( empty( $_POST['name'] ) || empty( $_POST['value'] ) ) {
-				wp_send_json_error( esc_html__( 'Wrong state params', 'socket' ) );
+			if ( empty( $_POST['name'] ) ) {
+				wp_send_json_error( esc_html__( 'Missing the name of the field', 'socket' ) );
 			}
 
 			$this->get_values();
 
-			$option_name = $_POST['name'];
+			$option_name = sanitize_text_field( $_POST['name'] );
 
-			$option_value = $_POST['value'];
+			if ( ! isset( $_POST['value'] ) ) {
+				$this->values[ $option_name ] = null;
+			} else {
+				$option_value = $_POST['value'];
 
-			$this->values[ $option_name ] = $option_value;
+				// a little sanitize
+				if ( is_array( $option_value ) ) {
+					$option_value = array_map( 'sanitize_text_field', $option_value );
+				} else {
+					$option_value = sanitize_text_field($option_value);
+				}
+				$this->values[ $option_name ] = $option_value;
+			}
 
 			wp_send_json_success( $this->save_values() );
 		}
-
 
 		function rest_cleanup() {
 
@@ -340,4 +359,66 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 			return $result;
 		}
 	}
+}
+
+/**
+ * Add the necessary filter to each post type
+ **/
+function rest_api_filter_add_filters() {
+	$post_types = get_post_types( array( 'show_in_rest' => true ), 'objects' );
+//var_dump($post_types);
+	foreach ( $post_types as $name => $post_type ) {
+		add_filter( 'rest_' . $name. '_query', 'rest_api_filter_add_filter_param', 10, 2 );
+	}
+}
+add_action( 'rest_api_init', 'rest_api_filter_add_filters', 11 );
+
+/**
+ * Add REST API support to an already registered post type.
+ */
+function my_custom_post_type_rest_support() {
+	global $wp_post_types, $wp_taxonomies;
+
+	//be sure to set this to the name of your post type!
+	$post_type_name = 'jetpack-portfolio';
+	if( isset( $wp_post_types[ $post_type_name ] ) ) {
+		$wp_post_types[$post_type_name]->show_in_rest = true;
+		$wp_post_types[$post_type_name]->rest_base = $post_type_name;
+		$wp_post_types[$post_type_name]->rest_controller_class = 'WP_REST_Posts_Controller';
+	}
+
+	//be sure to set this to the name of your post type!
+	$post_type_name = 'jetpack-testimonial';
+	if( isset( $wp_post_types[ $post_type_name ] ) ) {
+		$wp_post_types[$post_type_name]->show_in_rest = true;
+		$wp_post_types[$post_type_name]->rest_base = $post_type_name;
+		$wp_post_types[$post_type_name]->rest_controller_class = 'WP_REST_Posts_Controller';
+	}
+}
+add_action( 'init', 'my_custom_post_type_rest_support' );
+
+/**
+ * Add the filter parameter
+ *
+ * @param  array           $args    The query arguments.
+ * @param  WP_REST_Request $request Full details about the request.
+ * @return array $args.
+ **/
+function rest_api_filter_add_filter_param( $args, $request ) {
+	// Bail out if no filter parameter is set.
+	if ( empty( $request['filter'] ) || ! is_array( $request['filter'] ) ) {
+		return $args;
+	}
+	$filter = $request['filter'];
+	if ( isset( $filter['per_page'] ) && ( (int) $filter['per_page'] >= 1 && (int) $filter['per_page'] <= 100 ) ) {
+		$args['post_per_page'] = $filter['per_page'];
+	}
+	global $wp;
+	$vars = apply_filters( 'query_vars', $wp->public_query_vars );
+	foreach ( $vars as $var ) {
+		if ( isset( $filter[ $var ] ) ) {
+			$args[ $var ] = $filter[ $var ];
+		}
+	}
+	return $args;
 }

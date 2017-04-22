@@ -64135,7 +64135,7 @@ var SocketDashboard = function (_React$Component) {
 
 			if (test1 + test2 == confirm) {
 				jQuery.ajax({
-					url: socket.wp_rest.root + 'socket/v1/cleanup',
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/cleanup',
 					method: 'POST',
 					beforeSend: function beforeSend(xhr) {
 						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -64215,7 +64215,7 @@ var SocketDashboard = function (_React$Component) {
 						var section_config = socket.config.sockets[grid_key];
 
 						// default grid sizes, doc this
-						var sizes = _extends({ computer: 16, tablet: 16 }, section_config.sizes);
+						var sizes = _extends({ computer: 8, tablet: 16 }, section_config.sizes);
 
 						var section = _react2.default.createElement(
 							_semanticUiReact.Grid.Column,
@@ -64233,7 +64233,7 @@ var SocketDashboard = function (_React$Component) {
 										var field = section_config.items[field_key],
 										    value = '';
 
-										if (typeof component.state.values[field_key] !== "undefined") {
+										if (component.state.values !== null && typeof component.state.values[field_key] !== "undefined") {
 											value = component.state.values[field_key];
 										}
 
@@ -64250,12 +64250,7 @@ var SocketDashboard = function (_React$Component) {
 
 													output = _react2.default.createElement(
 														_semanticUiReact.Form.Field,
-														{ key: field_key },
-														_react2.default.createElement(
-															"label",
-															null,
-															field.label
-														),
+														null,
 														_react2.default.createElement("input", { placeholder: placeholder, "data-name": field_key,
 															onInput: component.inputHandleChange, defaultValue: value })
 													);
@@ -64266,7 +64261,7 @@ var SocketDashboard = function (_React$Component) {
 												{
 													output = _react2.default.createElement(
 														_semanticUiReact.Form.Field,
-														{ key: field_key },
+														null,
 														Object.keys(field.options).map(function (opt) {
 															return _react2.default.createElement(_semanticUiReact.Radio, { key: field_key + opt,
 																label: field.options[opt],
@@ -64284,16 +64279,22 @@ var SocketDashboard = function (_React$Component) {
 												{
 													value = component.validate_options_for_checkboxes(value);
 
+													var desc = null;
+
+													if (!_.isUndefined(field.desc)) {
+														desc = field.desc;
+													}
+
 													output = _react2.default.createElement(
 														_semanticUiReact.Form.Field,
-														{ key: field_key },
-														_react2.default.createElement(
-															"label",
-															null,
-															field.label
-														),
-														_react2.default.createElement(_semanticUiReact.Checkbox, { placeholder: placeholder, "data-name": field_key,
-															onChange: component.checkboxHandleChange, defaultChecked: value })
+														null,
+														_react2.default.createElement(_semanticUiReact.Checkbox, {
+															label: desc,
+															placeholder: placeholder,
+															"data-name": field_key,
+															onChange: component.checkboxHandleChange,
+															defaultChecked: value
+														})
 													);
 													break;
 												}
@@ -64302,7 +64303,7 @@ var SocketDashboard = function (_React$Component) {
 												{
 													output = _react2.default.createElement(
 														_semanticUiReact.Segment,
-														{ key: field_key },
+														null,
 														Object.keys(field.options).map(function (opt) {
 															var label = field.options[opt],
 															    defaultVal = false;
@@ -64327,16 +64328,23 @@ var SocketDashboard = function (_React$Component) {
 												{
 													value = component.validate_options_for_checkboxes(value);
 
+													var desc = null;
+
+													if (!_.isUndefined(field.desc)) {
+														desc = field.desc;
+													}
+
 													output = _react2.default.createElement(
 														_semanticUiReact.Form.Field,
-														{ key: field_key },
-														_react2.default.createElement(
-															"label",
-															null,
-															field.label
-														),
-														_react2.default.createElement(_semanticUiReact.Checkbox, { toggle: true, placeholder: placeholder, "data-name": field_key,
-															onChange: component.checkboxHandleChange, defaultChecked: value })
+														null,
+														_react2.default.createElement(_semanticUiReact.Checkbox, {
+															toggle: true,
+															label: desc,
+															placeholder: placeholder,
+															"data-name": field_key,
+															onChange: component.checkboxHandleChange,
+															defaultChecked: value
+														})
 													);
 													break;
 												}
@@ -64353,7 +64361,7 @@ var SocketDashboard = function (_React$Component) {
 
 													output = _react2.default.createElement(
 														_semanticUiReact.Form.Field,
-														{ key: field_key },
+														null,
 														_react2.default.createElement(_semanticUiReact.Dropdown, {
 															placeholder: placeholder,
 															search: true,
@@ -64381,15 +64389,41 @@ var SocketDashboard = function (_React$Component) {
 														value = [];
 													}
 
-													output = _react2.default.createElement(_taxSelect2.default, { key: field_key, name: field_key, value: value, field: field, placeholder: placeholder, setup_loading_flag: component.setup_loading_flag });
+													output = _react2.default.createElement(_taxSelect2.default, { name: field_key, value: value, field: field, placeholder: placeholder, setup_loading_flag: component.setup_loading_flag });
 													break;
+												}
+
+											case 'divider':
+												{
+													output = _react2.default.createElement(
+														_semanticUiReact.Form.Field,
+														{ key: field_key },
+														_react2.default.createElement(
+															_semanticUiReact.Divider,
+															{ horizontal: true },
+															_.isEmpty(field.html) ? _react2.default.createElement(_semanticUiReact.Icon, { disabled: true, name: "code" }) : field.html
+														)
+													);
 												}
 
 											default:
 												break;
 										}
 
-										return output;
+										if ('divider' === field.type) {
+											return output;
+										} else {
+											return _react2.default.createElement(
+												_semanticUiReact.Segment,
+												{ key: field_key, padded: true },
+												_.isUndefined(field.label) ? null : _react2.default.createElement(
+													_semanticUiReact.Label,
+													{ attached: "top" },
+													field.label
+												),
+												output
+											);
+										}
 									})
 								)
 							)
@@ -64452,7 +64486,7 @@ var SocketDashboard = function (_React$Component) {
 					this.async_loading(function () {
 
 						jQuery.ajax({
-							url: socket.wp_rest.root + 'socket/v1/option',
+							url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 							method: 'POST',
 							beforeSend: function beforeSend(xhr) {
 								xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -64495,7 +64529,7 @@ var SocketDashboard = function (_React$Component) {
 				this.async_loading(function () {
 
 					jQuery.ajax({
-						url: socket.wp_rest.root + 'socket/v1/option',
+						url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 						method: 'POST',
 						beforeSend: function beforeSend(xhr) {
 							xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -64537,7 +64571,7 @@ var SocketDashboard = function (_React$Component) {
 				this.async_loading(function () {
 
 					jQuery.ajax({
-						url: socket.wp_rest.root + 'socket/v1/option',
+						url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 						method: 'POST',
 						beforeSend: function beforeSend(xhr) {
 							xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -64587,7 +64621,7 @@ var SocketDashboard = function (_React$Component) {
 				this.async_loading(function () {
 
 					jQuery.ajax({
-						url: socket.wp_rest.root + 'socket/v1/option',
+						url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 						method: 'POST',
 						beforeSend: function beforeSend(xhr) {
 							xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -64628,7 +64662,7 @@ var SocketDashboard = function (_React$Component) {
 		value: function update_local_state($state) {
 			this.setState($state, function () {
 				jQuery.ajax({
-					url: socket.wp_rest.root + 'socket/v1/react_state',
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/react_state',
 					method: 'POST',
 					beforeSend: function beforeSend(xhr) {
 						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -64660,6 +64694,8 @@ exports.default = SocketDashboard;
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -64703,11 +64739,16 @@ var SocketPostSelect = function (_React$Component) {
 			_this.setState({ value: value });
 		};
 
+		_this.handleOpen = function (e) {
+			_this.state.value_on_open = _this.state.value;
+		};
+
 		_this.state = {
 			loading: true,
 			posts: [],
 			name: null,
-			value: _this.props.value
+			value: _this.props.value,
+			value_on_open: null
 		};
 
 		_this.handleClose = _this.handleClose.bind(_this);
@@ -64719,9 +64760,10 @@ var SocketPostSelect = function (_React$Component) {
 		value: function render() {
 			var component = this,
 			    output = null,
-			    value = this.props.value;
+			    value = this.props.value,
+			    placeholder = this.props.placeholder || 'Select';
 
-			if ('' === value) {
+			if (_.isEmpty(value)) {
 				value = [];
 			}
 
@@ -64729,7 +64771,7 @@ var SocketPostSelect = function (_React$Component) {
 				_semanticUiReact.Form.Field,
 				{ className: "post_type_select" },
 				_react2.default.createElement(_semanticUiReact.Dropdown, {
-					placeholder: this.props.placeholder,
+					placeholder: placeholder,
 					search: true,
 					selection: true,
 					closeOnBlur: false,
@@ -64738,7 +64780,8 @@ var SocketPostSelect = function (_React$Component) {
 					defaultValue: value,
 					options: this.state.posts,
 					onChange: component.handleChange,
-					onClose: component.handleClose
+					onClose: component.handleClose,
+					onOpen: component.handleOpen
 				})
 			);
 
@@ -64753,14 +64796,14 @@ var SocketPostSelect = function (_React$Component) {
 			var component = this,
 			    value = this.state.value;
 
-			if ('' === value || [] === value) {
+			if (value === component.state.value_on_open) {
 				return;
 			}
 
 			component.props.setup_loading_flag(true);
 
 			jQuery.ajax({
-				url: socket.wp_rest.root + 'socket/v1/option',
+				url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 				method: 'POST',
 				beforeSend: function beforeSend(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -64791,9 +64834,18 @@ var SocketPostSelect = function (_React$Component) {
 			// load all the posts
 			wp.api.loadPromise.done(function () {
 				var wpPosts = new wp.api.collections.Posts(),
-				    posts = [];
+				    posts = [],
+				    query = {};
 
-				wpPosts.fetch({ data: { per_page: 100 } }).done(function (models) {
+				if (!_.isUndefined(component.props.field.query)) {
+					query = _extends({}, query, component.props.field.query);
+				}
+
+				wpPosts.fetch({
+					data: {
+						per_page: 100,
+						filter: query
+					} }).done(function (models) {
 					{
 						Object.keys(models).map(function (i) {
 							var model = models[i];
@@ -64824,6 +64876,8 @@ exports.default = SocketPostSelect;
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -64866,11 +64920,16 @@ var SocketTaxSelect = function (_React$Component) {
 			_this.setState({ value: value });
 		};
 
+		_this.handleOpen = function (e) {
+			_this.state.value_on_open = _this.state.value;
+		};
+
 		_this.state = {
 			loading: true,
 			terms: [],
 			name: null,
-			value: _this.props.value
+			value: _this.props.value,
+			value_on_open: null
 		};
 
 		_this.handleClose = _this.handleClose.bind(_this);
@@ -64882,27 +64941,28 @@ var SocketTaxSelect = function (_React$Component) {
 		value: function render() {
 			var component = this,
 			    output = null,
-			    value = this.props.value;
+			    value = this.props.value,
+			    placeholder = this.props.placeholder || 'Select';
 
-			if ('' === value) {
+			if (_.isEmpty(value)) {
 				value = [];
 			}
-
-			// console.log( this.state );
 
 			output = _react2.default.createElement(
 				_semanticUiReact.Form.Field,
 				{ className: "post_type_select" },
 				_react2.default.createElement(_semanticUiReact.Dropdown, {
-					placeholder: this.props.placeholder,
+					placeholder: placeholder,
 					search: true,
 					selection: true,
+					closeOnBlur: false,
 					multiple: true,
 					loading: this.state.loading,
 					defaultValue: value,
 					options: this.state.terms,
 					onChange: component.handleChange,
-					onClose: component.handleClose
+					onClose: component.handleClose,
+					onOpen: component.handleOpen
 				})
 			);
 
@@ -64917,13 +64977,14 @@ var SocketTaxSelect = function (_React$Component) {
 			var component = this,
 			    value = this.state.value;
 
-			if ('' === value || [] === value) {
+			if (value === component.state.value_on_open) {
 				return;
 			}
 
 			component.props.setup_loading_flag(true);
+
 			jQuery.ajax({
-				url: socket.wp_rest.root + 'socket/v1/option',
+				url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 				method: 'POST',
 				beforeSend: function beforeSend(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -64949,22 +65010,34 @@ var SocketTaxSelect = function (_React$Component) {
 				return false;
 			}
 
-			var component = this;
+			var query = { per_page: 100, taxonomy: 'categories' };
 
-			wp.api.loadPromise.done(function () {
-				var catsCollection = new wp.api.collections.Categories(),
-				    terms = [];
+			if (!_.isUndefined(this.props.field.query)) {
+				query = _extends({}, query, this.props.field.query);
+			}
 
-				catsCollection.fetch({ data: { per_page: 100 } }).done(function (models) {
-					{
-						Object.keys(models).map(function (i) {
-							var model = models[i];
+			if (_.isUndefined(query.taxonomy)) {
+				return;
+			}
+
+			var component = this,
+			    terms = [],
+			    url = socket.wp_rest.root + 'wp/v2/' + query.taxonomy + '?per_page=' + query.per_page;
+
+			fetch(url).then(function (response) {
+				return response.json();
+			}).then(function (results) {
+				{
+					Object.keys(results).map(function (i) {
+						var model = results[i];
+
+						if (!_.isUndefined(model.id)) {
 							terms.push({ key: model.id, value: model.id.toString(), text: model.name });
-						});
-					}
+						}
+					});
+				}
 
-					component.setState({ terms: terms, loading: false });
-				});
+				component.setState({ terms: terms, loading: false });
 			});
 		}
 	}]);

@@ -4,8 +4,8 @@ import PropTypes from 'prop-types'
 // import _ from 'lodash'
 
 import {
-	Form,
-	Dropdown
+	Dropdown,
+	Form
 } from 'semantic-ui-react'
 
 export default class SocketPostSelect extends React.Component {
@@ -25,24 +25,26 @@ export default class SocketPostSelect extends React.Component {
 			loading: true,
 			posts: [],
 			name: null,
-			value: this.props.value
+			value: this.props.value,
+			value_on_open: null
 		};
 
 		this.handleClose = this.handleClose.bind(this);
 	}
 
 	render() {
-		let component = this,
+		var component = this,
 			output = null,
-			value = this.props.value;
+			value = this.props.value,
+			placeholder = this.props.placeholder || 'Select';
 
-		if ( '' === value ) {
+		if ( _.isEmpty( value ) ) {
 			value = []
 		}
 
 		output = <Form.Field className="post_type_select" >
 			<Dropdown
-				placeholder={this.props.placeholder}
+				placeholder={placeholder}
 				search
 				selection
 				closeOnBlur={false}
@@ -52,6 +54,7 @@ export default class SocketPostSelect extends React.Component {
 				options={this.state.posts}
 				onChange={component.handleChange}
 				onClose={component.handleClose}
+				onOpen={component.handleOpen}
 			/>
 		</Form.Field>
 
@@ -62,19 +65,23 @@ export default class SocketPostSelect extends React.Component {
 		this.setState({ value });
 	}
 
+	handleOpen = (e) => {
+		this.state.value_on_open = this.state.value;
+	}
+
 	// on close we want to save the data
 	handleClose(e){
 		let component = this,
 			value = this.state.value
 
-		if ( '' === value || [] === value ) {
+		if ( value === component.state.value_on_open ) {
 			return;
 		}
 
-		component.props.setup_loading_flag( true );
+		component.props.setup_loading_flag( true )
 
 		jQuery.ajax({
-			url: socket.wp_rest.root + 'socket/v1/option',
+			url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 			method: 'POST',
 			beforeSend: function (xhr) {
 				xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -104,17 +111,26 @@ export default class SocketPostSelect extends React.Component {
 		// load all the posts
 		wp.api.loadPromise.done( function() {
 			var wpPosts = new wp.api.collections.Posts(),
-				posts = [];
+				posts = [],
+				query = {};
 
-			wpPosts.fetch( { data: { per_page: 100 } } ).done(function (models) {
-				{Object.keys(models).map(function ( i ) {
-					let model = models[i];
+			if ( ! _.isUndefined( component.props.field.query ) ) {
+				query = { ...query, ...component.props.field.query };
+			}
 
-					posts.push({ key: model.id, value: model.id.toString(), text: model.title.rendered });
-				})}
+			wpPosts.fetch({
+				data : {
+					per_page: 100,
+					filter: query
+				} }).done(function (models) {
+					{Object.keys(models).map(function ( i ) {
+						let model = models[i];
 
-				component.setState( { posts: posts, loading: false } );
-			});
+						posts.push({ key: model.id, value: model.id.toString(), text: model.title.rendered });
+					})}
+
+					component.setState( { posts: posts, loading: false } );
+				});
 		});
 	}
 }

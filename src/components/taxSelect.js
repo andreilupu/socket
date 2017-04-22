@@ -2,8 +2,8 @@ import React from "react"
 import ReactDOM from "react-dom"
 import PropTypes from 'prop-types'
 import {
-	Form,
-	Dropdown
+	Dropdown,
+	Form
 } from 'semantic-ui-react'
 
 export default class SocketTaxSelect extends React.Component {
@@ -22,34 +22,36 @@ export default class SocketTaxSelect extends React.Component {
 			loading: true,
 			terms: [],
 			name: null,
-			value: this.props.value
+			value: this.props.value,
+			value_on_open: null
 		};
 
 		this.handleClose = this.handleClose.bind(this);
 	}
 
 	render() {
-		let component = this,
+		var component = this,
 			output = null,
-			value = this.props.value;
+			value = this.props.value,
+			placeholder = this.props.placeholder || 'Select';
 
-		if ( '' === value ) {
+		if ( _.isEmpty( value ) ) {
 			value = []
 		}
 
-		// console.log( this.state );
-
 		output = <Form.Field className="post_type_select" >
 			<Dropdown
-				placeholder={this.props.placeholder}
+				placeholder={placeholder}
 				search
 				selection
+				closeOnBlur={false}
 				multiple={true}
 				loading={this.state.loading}
 				defaultValue={value}
 				options={this.state.terms}
 				onChange={component.handleChange}
 				onClose={component.handleClose}
+				onOpen={component.handleOpen}
 			/>
 		</Form.Field>
 
@@ -60,18 +62,23 @@ export default class SocketTaxSelect extends React.Component {
 		this.setState({ value });
 	}
 
+	handleOpen = (e) => {
+		this.state.value_on_open = this.state.value;
+	}
+
 	// on close we want to save the data
 	handleClose(e){
 		let component = this,
 			value = this.state.value
 
-		if ( '' === value || [] === value ) {
+		if ( value === component.state.value_on_open ) {
 			return;
 		}
 
-		component.props.setup_loading_flag( true );
+		component.props.setup_loading_flag( true )
+
 		jQuery.ajax({
-			url: socket.wp_rest.root + 'socket/v1/option',
+			url: socket.wp_rest.root + socket.wp_rest.api_base +  '/option',
 			method: 'POST',
 			beforeSend: function (xhr) {
 				xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -96,20 +103,32 @@ export default class SocketTaxSelect extends React.Component {
 			return false;
 		}
 
-		let component = this;
+		var query = { per_page: 100, taxonomy: 'categories' };
 
-		wp.api.loadPromise.done( function() {
-			let catsCollection = new wp.api.collections.Categories(),
-			terms = [];
+		if ( ! _.isUndefined( this.props.field.query ) ) {
+			query = { ...query, ...this.props.field.query };
+		}
 
-			catsCollection.fetch( { data: { per_page: 100 } } ).done(function (models) {
-				{Object.keys(models).map(function ( i ) {
-					var model =models[i];
-					terms.push({key: model.id, value: model.id.toString(), text: model.name});
+		if ( _.isUndefined( query.taxonomy ) ) {
+			return;
+		}
+
+		var component = this,
+			terms = [],
+			url = socket.wp_rest.root + 'wp/v2/' + query.taxonomy + '?per_page=' + query.per_page;
+
+		fetch( url )
+			.then( (response) => { return response.json() })
+			.then( (results) => {
+				{Object.keys(results).map(function ( i ) {
+					var model = results[i];
+
+					if ( ! _.isUndefined(model.id) ) {
+						terms.push({key: model.id, value: model.id.toString(), text: model.name});
+					}
 				})}
 
 				component.setState({ terms: terms, loading: false });
 			});
-		});
 	}
 }

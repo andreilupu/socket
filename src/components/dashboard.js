@@ -4,20 +4,22 @@ import SocketPostSelect from "./postSelect.js";
 import SocketTaxSelect from "./taxSelect.js";
 
 import {
-	Grid,
-	Image,
-	Container,
-	Segment,
-	Header,
-	Loader,
-	Dimmer,
-	Form,
-	Text,
 	Button,
 	Checkbox,
+	Container,
+	Dimmer,
 	Divider,
+	Dropdown,
+	Form,
+	Icon,
+	Image,
+	Grid,
+	Header,
+	Label,
+	Loader,
 	Radio,
-	Dropdown
+	Segment,
+	Text,
 } from 'semantic-ui-react'
 
 class SocketDashboard extends React.Component {
@@ -76,7 +78,7 @@ class SocketDashboard extends React.Component {
 				var section_config = socket.config.sockets[grid_key];
 
 				// default grid sizes, doc this
-				var sizes = {...{computer: 16, tablet: 16}, ...section_config.sizes};
+				var sizes = {...{computer: 8, tablet: 16}, ...section_config.sizes};
 
 				var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet}
 				                           mobile={sizes.mobile}>
@@ -89,7 +91,7 @@ class SocketDashboard extends React.Component {
 								let field = section_config.items[field_key],
 									value = '';
 
-								if (typeof component.state.values[field_key] !== "undefined") {
+								if ( component.state.values !== null && typeof component.state.values[field_key] !== "undefined" ) {
 									value = component.state.values[field_key];
 								}
 
@@ -103,8 +105,7 @@ class SocketDashboard extends React.Component {
 								switch (field.type) {
 									case 'text' : {
 
-										output = <Form.Field key={field_key}>
-											<label>{field.label}</label>
+										output = <Form.Field>
 											<input placeholder={placeholder} data-name={field_key}
 											       onInput={component.inputHandleChange} defaultValue={value}/>
 										</Form.Field>
@@ -112,7 +113,7 @@ class SocketDashboard extends React.Component {
 									}
 
 									case 'radio' : {
-										output = <Form.Field key={field_key}>
+										output = <Form.Field>
 											{ Object.keys(field.options).map(function (opt) {
 												return <Radio key={ field_key + opt }
 												              label={field.options[opt]}
@@ -129,16 +130,26 @@ class SocketDashboard extends React.Component {
 									case 'checkbox' : {
 										value = component.validate_options_for_checkboxes(value);
 
-										output = <Form.Field key={field_key}>
-											<label>{field.label}</label>
-											<Checkbox placeholder={placeholder} data-name={field_key}
-											          onChange={component.checkboxHandleChange} defaultChecked={value}/>
+										var desc = null;
+
+										if ( ! _.isUndefined( field.desc ) ) {
+											desc = field.desc;
+										}
+
+										output = <Form.Field>
+											<Checkbox
+												label={desc}
+												placeholder={placeholder}
+												data-name={field_key}
+												onChange={component.checkboxHandleChange}
+												defaultChecked={value}
+											/>
 										</Form.Field>
 										break;
 									}
 
 									case 'multicheckbox' : {
-										output = <Segment key={field_key}>
+										output = <Segment>
 											{ Object.keys(field.options).map(function (opt) {
 												let label = field.options[opt],
 													defaultVal = false;
@@ -160,10 +171,21 @@ class SocketDashboard extends React.Component {
 									case 'toggle' : {
 										value = component.validate_options_for_checkboxes(value);
 
-										output = <Form.Field key={field_key}>
-											<label>{field.label}</label>
-											<Checkbox toggle placeholder={placeholder} data-name={field_key}
-											          onChange={component.checkboxHandleChange} defaultChecked={value}/>
+										var desc = null;
+
+										if ( ! _.isUndefined( field.desc ) ) {
+											desc = field.desc;
+										}
+
+										output = <Form.Field>
+											<Checkbox
+												toggle
+												label={desc}
+												placeholder={placeholder}
+												data-name={field_key}
+												onChange={component.checkboxHandleChange}
+												defaultChecked={value}
+											/>
 										</Form.Field>
 										break;
 									}
@@ -175,7 +197,7 @@ class SocketDashboard extends React.Component {
 											dropDownOptions.push({key: opt, value: opt, text: field.options[opt]});
 										})}
 
-										output = <Form.Field key={field_key}>
+										output = <Form.Field>
 											<Dropdown
 												placeholder={placeholder}
 												search
@@ -201,15 +223,30 @@ class SocketDashboard extends React.Component {
 											value = []
 										}
 
-										output = <SocketTaxSelect key={field_key} name={field_key} value={value} field={field} placeholder={placeholder} setup_loading_flag={component.setup_loading_flag} />
+										output = <SocketTaxSelect name={field_key} value={value} field={field} placeholder={placeholder} setup_loading_flag={component.setup_loading_flag} />
 										break;
+									}
+
+									case 'divider' : {
+										output = <Form.Field key={field_key}>
+											<Divider horizontal>
+												{ _.isEmpty(field.html) ? <Icon disabled name='code' /> : field.html }
+											</Divider>
+										</Form.Field>
 									}
 
 									default:
 										break
 								}
 
-								return output
+								if ( 'divider' === field.type ) {
+									return output
+								} else {
+									return <Segment  key={field_key} padded>
+										{( _.isUndefined( field.label ) ) ? null : <Label attached='top'>{field.label}</Label> }
+										{output}
+									</Segment>
+								}
 							})}
 						</Form>
 					</Segment>
@@ -259,7 +296,7 @@ class SocketDashboard extends React.Component {
 				this.async_loading(() => {
 
 					jQuery.ajax({
-						url: socket.wp_rest.root + 'socket/v1/option',
+						url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 						method: 'POST',
 						beforeSend: function (xhr) {
 							xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -304,7 +341,7 @@ class SocketDashboard extends React.Component {
 			this.async_loading(() => {
 
 				jQuery.ajax({
-					url: socket.wp_rest.root + 'socket/v1/option',
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 					method: 'POST',
 					beforeSend: function (xhr) {
 						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -346,7 +383,7 @@ class SocketDashboard extends React.Component {
 			this.async_loading(() => {
 
 				jQuery.ajax({
-					url: socket.wp_rest.root + 'socket/v1/option',
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 					method: 'POST',
 					beforeSend: function (xhr) {
 						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -398,7 +435,7 @@ class SocketDashboard extends React.Component {
 			this.async_loading(() => {
 
 				jQuery.ajax({
-					url: socket.wp_rest.root + 'socket/v1/option',
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
 					method: 'POST',
 					beforeSend: function (xhr) {
 						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -447,7 +484,7 @@ class SocketDashboard extends React.Component {
 	update_local_state($state) {
 		this.setState($state, function () {
 			jQuery.ajax({
-				url: socket.wp_rest.root + 'socket/v1/react_state',
+				url: socket.wp_rest.root + socket.wp_rest.api_base +  '/react_state',
 				method: 'POST',
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
@@ -479,9 +516,9 @@ class SocketDashboard extends React.Component {
 
 		var confirm = prompt("Are you sure you want to reset Pixcare?\n\n\nOK, just do this math: " + test1 + ' + ' + test2 + '=', '');
 
-		if (test1 + test2 == confirm) {
+		if ( test1 + test2 == confirm ) {
 			jQuery.ajax({
-				url: socket.wp_rest.root + 'socket/v1/cleanup',
+				url: socket.wp_rest.root + socket.wp_rest.api_base + '/cleanup',
 				method: 'POST',
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
