@@ -64093,6 +64093,10 @@ var _taxSelect = require("./taxSelect.js");
 
 var _taxSelect2 = _interopRequireDefault(_taxSelect);
 
+var _gallery = require("./gallery.js");
+
+var _gallery2 = _interopRequireDefault(_gallery);
+
 var _semanticUiReact = require("semantic-ui-react");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -64102,6 +64106,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+wp.media.socketgallery = [];
 
 var SocketDashboard = function (_React$Component) {
 	_inherits(SocketDashboard, _React$Component);
@@ -64215,7 +64221,7 @@ var SocketDashboard = function (_React$Component) {
 						var section_config = socket.config.sockets[grid_key];
 
 						// default grid sizes, doc this
-						var sizes = _extends({ computer: 8, tablet: 16 }, section_config.sizes);
+						var sizes = _extends({ computer: 16, tablet: 16 }, section_config.sizes);
 
 						var section = _react2.default.createElement(
 							_semanticUiReact.Grid.Column,
@@ -64404,6 +64410,13 @@ var SocketDashboard = function (_React$Component) {
 															_.isEmpty(field.html) ? _react2.default.createElement(_semanticUiReact.Icon, { disabled: true, name: "code" }) : field.html
 														)
 													);
+													break;
+												}
+
+											case 'gallery':
+												{
+													output = _react2.default.createElement(_gallery2.default, { key: field_key, name: field_key, value: value, field: field, placeholder: placeholder, setup_loading_flag: component.setup_loading_flag });
+													break;
 												}
 
 											default:
@@ -64413,13 +64426,21 @@ var SocketDashboard = function (_React$Component) {
 										if ('divider' === field.type) {
 											return output;
 										} else {
+											var desc = field.description ? _react2.default.createElement(
+												_semanticUiReact.Label,
+												{ size: "small", style: { fontSize: 12 } },
+												field.description
+											) : '';
+
 											return _react2.default.createElement(
 												_semanticUiReact.Segment,
 												{ key: field_key, padded: true },
 												_.isUndefined(field.label) ? null : _react2.default.createElement(
 													_semanticUiReact.Label,
-													{ attached: "top" },
-													field.label
+													{ attached: "top", size: "big" },
+													field.label,
+													" ",
+													desc
 												),
 												output
 											);
@@ -64688,7 +64709,362 @@ var SocketDashboard = function (_React$Component) {
 
 exports.default = SocketDashboard;
 
-},{"./postSelect.js":1144,"./taxSelect.js":1145,"react":940,"react-dom":784,"semantic-ui-react":1041}],1144:[function(require,module,exports){
+},{"./gallery.js":1144,"./postSelect.js":1145,"./taxSelect.js":1146,"react":940,"react-dom":784,"semantic-ui-react":1041}],1144:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require("react-dom");
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _propTypes = require("prop-types");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _semanticUiReact = require("semantic-ui-react");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// import _ from 'lodash'
+
+var SocketGallery = function (_React$Component) {
+	_inherits(SocketGallery, _React$Component);
+
+	function SocketGallery(props) {
+		_classCallCheck(this, SocketGallery);
+
+		var _this = _possibleConstructorReturn(this, (SocketGallery.__proto__ || Object.getPrototypeOf(SocketGallery)).call(this, props));
+		// this makes the this
+
+
+		_this.handleOpen = function (e) {
+			var component = _this,
+			    name = component.props.name;
+
+			component.state.value_on_open = component.state.value;
+			e.preventDefault();
+			component.frame = wp.media.socketgallery[component.props.name].frame();
+			component.frame.open();
+
+			if (typeof component.frame.socketbound === "undefined") {
+				component.frame.on('close', function () {
+					component.onclose(name);
+				});
+				component.frame.socketbound = true;
+			}
+		};
+
+		_this.frame = null;
+
+		// get the current state localized by wordpress
+		_this.state = {
+			loading: true,
+			value_on_open: null,
+			attachments: []
+		};
+
+		if (_.isEmpty(_this.props.value)) {
+			_this.state.value = [];
+		} else {
+			_this.state.value = _this.props.value.split(',').map(function (t) {
+				return parseInt(t);
+			});
+		}
+
+		_this.handleOpen = _this.handleOpen.bind(_this);
+		_this.init_media_modal = _this.init_media_modal.bind(_this);
+		_this.onclose = _this.onclose.bind(_this);
+		_this.getSelection = _this.getSelection.bind(_this);
+
+		_this.init_media_modal();
+		return _this;
+	}
+
+	_createClass(SocketGallery, [{
+		key: "render",
+		value: function render() {
+			var component = this,
+			    output = null,
+			    value = this.state.value,
+			    placeholder = this.props.placeholder || 'Select';
+
+			var square = {
+				width: 150,
+				height: 150,
+				border: '1px solid #333',
+				padding: 0,
+				margin: '15px 15px 35px 15px'
+			};
+
+			var ids = value;
+
+			console.log(ids);
+
+			output = _react2.default.createElement(
+				_semanticUiReact.Form.Field,
+				{ className: "gallery" },
+				_react2.default.createElement(
+					_semanticUiReact.Grid,
+					{ onClick: component.handleOpen, style: { minHeight: 120, padding: '15px' } },
+					Object.keys(ids).map(function (i) {
+						var id = Number(ids[i]),
+						    attachment = wp.media.model.Attachment.get(id),
+						    url = '';
+
+						if (typeof attachment.attributes.sizes === "undefined") {
+							return _react2.default.createElement(
+								_semanticUiReact.Grid.Column,
+								{
+									key: id },
+								_react2.default.createElement(
+									_semanticUiReact.Header,
+									{ as: "h3" },
+									"Select your images"
+								)
+							);
+						}
+
+						if (_.isUndefined(attachment.attributes.sizes.thumbnail)) {
+							url = attachment.attributes.sizes.full.url;
+						} else {
+							url = attachment.attributes.sizes.thumbnail.url;
+						}
+
+						if (typeof attachment.attributes.sizes !== "undefined") {
+							return _react2.default.createElement(
+								_semanticUiReact.Grid.Column,
+								{
+									key: id,
+									style: square,
+									color: "grey"
+								},
+								_react2.default.createElement(_semanticUiReact.Image, { src: url, size: "small", width: "150", centered: true }),
+								_react2.default.createElement(
+									_semanticUiReact.Header,
+									{ as: "h4", style: { position: 'absolute', bottom: '-25px' } },
+									attachment.attributes.title
+								)
+							);
+						}
+					})
+				)
+			);
+
+			return output;
+		}
+	}, {
+		key: "onclose",
+		value: function onclose(name) {
+			var component = this;
+
+			component.props.setup_loading_flag(true);
+
+			setTimeout(function () {
+				jQuery.ajax({
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
+					method: 'POST',
+					beforeSend: function beforeSend(xhr) {
+						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+					},
+					data: {
+						'socket_nonce': socket.wp_rest.socket_nonce,
+						name: name,
+						value: component.state.value.join(',')
+					}
+				}).done(function (response) {
+					// let new_values = component.state.values;
+					console.log(response);
+					component.props.setup_loading_flag(false);
+				}).error(function (err) {
+					console.log(err);
+					component.props.setup_loading_flag(false);
+				});
+			}, 1000);
+		}
+	}, {
+		key: "componentWillMount",
+		value: function componentWillMount() {
+			var component = this;
+
+			// console.debug( component );
+
+			if (_.isEmpty(component.state.attachments) && !_.isEmpty(component.state.value)) {
+				var attachments = [];
+				var res = component.getSelection(component.state.value.join(','));
+
+				// },500);
+				// just wait a sec
+				// setTimeout(function () {
+				// 	{Object.keys(component.state.value).map(function ( i ) {
+				// 		attachments.push( wp.media.model.Attachment.get( component.state.value[i] ) )
+				// 	})}
+				// component.setState( { attachments: res.models } );
+			}
+		}
+	}, {
+		key: "init_media_modal",
+		value: function init_media_modal() {
+			var component = this;
+
+			wp.media.socketgallery[component.props.name] = {
+				frame: function frame() {
+					if (this._frame) return this._frame;
+
+					var selection = this.select();
+
+					this._frame = wp.media({
+						className: 'media-frame no-sidebar',
+						id: 'socket-gallery',
+						frame: 'post',
+						title: 'Select Your Images',
+						button: {
+							text: 'Choose'
+						},
+						state: 'gallery-edit',
+						editing: true,
+						multiple: true,
+						library: {
+							type: 'image'
+						},
+						selection: selection
+					});
+
+					this._frame.on('ready', this.ready);
+					this._frame.on('open', this.open);
+					this._frame.on('update', this.update);
+
+					return this._frame;
+				},
+
+				ready: function ready() {
+					jQuery('.media-modal').addClass('no-sidebar smaller');
+				},
+
+				open: function open() {
+					console.log(' open ');
+				},
+
+				close: function close(cb) {
+					cb();
+				},
+
+				update: function update() {
+					var settings = wp.media.view.settings,
+					    controller = wp.media.socketgallery[component.props.name]._frame.states.get('gallery-edit'),
+					    library = controller.get('library'),
+					    $return = [],
+					    ids = library.pluck('id');
+
+					component.setState({ value: ids }, function () {
+						controller.reset();
+					});
+				},
+
+				// Gets initial gallery-edit images. Function modified from wp.media.gallery.edit
+				// in wp-includes/js/media-editor.js.source.html
+				select: function select() {
+					var shortcode = wp.shortcode.next('gallery', '[gallery]'),
+					    attachments,
+					    selection;
+
+					if (component.state.value) {
+						shortcode = wp.shortcode.next('gallery', '[gallery ids="' + component.state.value + '"]');
+					}
+
+					// Bail if we didn't match the shortcode or all of the content.
+					if (!shortcode) return;
+
+					// Ignore the rest of the match object.
+					shortcode = shortcode.shortcode;
+
+					attachments = wp.media.gallery.attachments(shortcode);
+					selection = new wp.media.model.Selection(attachments.models, {
+						props: attachments.props.toJSON(),
+						multiple: true
+					});
+
+					selection.gallery = attachments.gallery;
+
+					// Fetch the query's attachments, and then break ties from the
+					// query to allow for sorting.
+					selection.more().done(function () {
+						// Break ties with the query.
+						selection.props.set({ query: false });
+						selection.unmirror();
+						selection.props.unset('orderby');
+					});
+
+					return selection;
+				}
+			};
+		}
+	}, {
+		key: "getSelection",
+		value: function getSelection(idsString) {
+			var component = this,
+			    shortcode = wp.shortcode.next('gallery', '[gallery]'),
+			    attachments,
+			    selection;
+
+			if (component.state.value) {
+				shortcode = wp.shortcode.next('gallery', '[gallery ids="' + component.state.value + '"]');
+			}
+
+			// Bail if we didn't match the shortcode or all of the content.
+			if (!shortcode) return;
+
+			// Ignore the rest of the match object.
+			shortcode = shortcode.shortcode;
+
+			attachments = wp.media.gallery.attachments(shortcode);
+			selection = new wp.media.model.Selection(attachments.models, {
+				props: attachments.props.toJSON(),
+				multiple: true
+			});
+
+			selection.gallery = attachments.gallery;
+
+			// Fetch the query's attachments, and then break ties from the
+			// query to allow for sorting.
+			selection.more().done(function () {
+				// Break ties with the query.
+				selection.props.set({ query: false });
+				selection.unmirror();
+				selection.props.unset('orderby');
+
+				component.setState({ attachments: selection.models });
+			});
+
+			return selection;
+		}
+	}]);
+
+	return SocketGallery;
+}(_react2.default.Component);
+
+SocketGallery.propTypes = {
+	name: _propTypes2.default.string,
+	value: _propTypes2.default.string,
+	setup_loading_flag: _propTypes2.default.func
+};
+exports.default = SocketGallery;
+
+},{"prop-types":782,"react":940,"react-dom":784,"semantic-ui-react":1041}],1145:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -64850,7 +65226,13 @@ var SocketPostSelect = function (_React$Component) {
 						Object.keys(models).map(function (i) {
 							var model = models[i];
 
-							posts.push({ key: model.id, value: model.id.toString(), text: model.title.rendered });
+							var pre = '';
+
+							if (model.parent > 0) {
+								pre = ' –– ';
+							}
+
+							posts.push({ key: model.id, value: model.id.toString(), text: pre + model.title.rendered });
 						});
 					}
 
@@ -64870,7 +65252,7 @@ SocketPostSelect.propTypes = {
 };
 exports.default = SocketPostSelect;
 
-},{"prop-types":782,"react":940,"react-dom":784,"semantic-ui-react":1041}],1145:[function(require,module,exports){
+},{"prop-types":782,"react":940,"react-dom":784,"semantic-ui-react":1041}],1146:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -65010,34 +65392,50 @@ var SocketTaxSelect = function (_React$Component) {
 				return false;
 			}
 
-			var query = { per_page: 100, taxonomy: 'categories' };
+			var component = this;
 
-			if (!_.isUndefined(this.props.field.query)) {
-				query = _extends({}, query, this.props.field.query);
-			}
+			wp.api.loadPromise.done(function () {
+				var query = { per_page: 100, taxonomy: 'categories' };
 
-			if (_.isUndefined(query.taxonomy)) {
-				return;
-			}
-
-			var component = this,
-			    terms = [],
-			    url = socket.wp_rest.root + 'wp/v2/' + query.taxonomy + '?per_page=' + query.per_page;
-
-			fetch(url).then(function (response) {
-				return response.json();
-			}).then(function (results) {
-				{
-					Object.keys(results).map(function (i) {
-						var model = results[i];
-
-						if (!_.isUndefined(model.id)) {
-							terms.push({ key: model.id, value: model.id.toString(), text: model.name });
-						}
-					});
+				if (!_.isUndefined(component.props.field.query)) {
+					query = _extends({}, query, component.props.field.query);
 				}
 
-				component.setState({ terms: terms, loading: false });
+				if (_.isUndefined(query.taxonomy)) {
+					return;
+				}
+
+				var rest_base = query.taxonomy;
+
+				// check if this taxonomy has a different rest_base than the taxonomy name
+				if (!_.isUndefined(socket.wp.taxonomies[rest_base]) && !_.isEmpty(socket.wp.taxonomies[rest_base].rest_base)) {
+					rest_base = socket.wp.taxonomies[rest_base].rest_base;
+				}
+
+				var terms = [],
+				    url = socket.wp_rest.root + 'wp/v2/' + rest_base + '?per_page=' + query.per_page;
+
+				fetch(url).then(function (response) {
+					return response.json();
+				}).then(function (results) {
+					{
+						Object.keys(results).map(function (i) {
+							var model = results[i];
+
+							if (!_.isUndefined(model.id)) {
+								var pre = '';
+
+								if (model.parent > 0) {
+									pre = ' –– ';
+								}
+
+								terms.push({ key: model.id, value: model.id.toString(), text: pre + model.name });
+							}
+						});
+					}
+
+					component.setState({ terms: terms, loading: false });
+				});
 			});
 		}
 	}]);
@@ -65052,7 +65450,7 @@ SocketTaxSelect.propTypes = {
 };
 exports.default = SocketTaxSelect;
 
-},{"prop-types":782,"react":940,"react-dom":784,"semantic-ui-react":1041}],1146:[function(require,module,exports){
+},{"prop-types":782,"react":940,"react-dom":784,"semantic-ui-react":1041}],1147:[function(require,module,exports){
 'use strict';
 
 require('babel-polyfill');
@@ -65089,6 +65487,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _reactDom2.default.render(_react2.default.createElement(_dashboard2.default, null), document.getElementById('socket_dashboard'));
 
-},{"./components/dashboard.js":1143,"babel-polyfill":1,"react":940,"react-dom":784,"react-tap-event-plugin":914,"whatwg-fetch":1142}]},{},[1146])
+},{"./components/dashboard.js":1143,"babel-polyfill":1,"react":940,"react-dom":784,"react-tap-event-plugin":914,"whatwg-fetch":1142}]},{},[1147])
 
 //# sourceMappingURL=socket.js.map

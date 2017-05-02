@@ -103,32 +103,52 @@ export default class SocketTaxSelect extends React.Component {
 			return false;
 		}
 
-		var query = { per_page: 100, taxonomy: 'categories' };
+		let component = this
 
-		if ( ! _.isUndefined( this.props.field.query ) ) {
-			query = { ...query, ...this.props.field.query };
-		}
+		wp.api.loadPromise.done( function() {
+			var query = {per_page: 100, taxonomy: 'categories'};
 
-		if ( _.isUndefined( query.taxonomy ) ) {
-			return;
-		}
+			if (!_.isUndefined(component.props.field.query)) {
+				query = {...query, ...component.props.field.query};
+			}
 
-		var component = this,
-			terms = [],
-			url = socket.wp_rest.root + 'wp/v2/' + query.taxonomy + '?per_page=' + query.per_page;
+			if (_.isUndefined(query.taxonomy)) {
+				return;
+			}
 
-		fetch( url )
-			.then( (response) => { return response.json() })
-			.then( (results) => {
-				{Object.keys(results).map(function ( i ) {
-					var model = results[i];
+			var rest_base = query.taxonomy;
 
-					if ( ! _.isUndefined(model.id) ) {
-						terms.push({key: model.id, value: model.id.toString(), text: model.name});
+			// check if this taxonomy has a different rest_base than the taxonomy name
+			if ( ! _.isUndefined( socket.wp.taxonomies[rest_base] ) && ! _.isEmpty( socket.wp.taxonomies[rest_base].rest_base ) ) {
+				rest_base = socket.wp.taxonomies[rest_base].rest_base;
+			}
+
+			var terms = [],
+				url = socket.wp_rest.root + 'wp/v2/' + rest_base + '?per_page=' + query.per_page;
+
+			fetch(url)
+				.then((response) => {
+					return response.json()
+				})
+				.then((results) => {
+					{
+						Object.keys(results).map(function (i) {
+							var model = results[i];
+
+							if (!_.isUndefined(model.id)) {
+								var pre = '';
+
+								if ( model.parent > 0 ) {
+									pre = ' –– '
+								}
+
+								terms.push({key: model.id, value: model.id.toString(), text: pre + model.name});
+							}
+						})
 					}
-				})}
 
-				component.setState({ terms: terms, loading: false });
-			});
+					component.setState({terms: terms, loading: false});
+				});
+		});
 	}
 }

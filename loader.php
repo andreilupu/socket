@@ -158,7 +158,8 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 				wp_enqueue_script( 'socket-dashboard', plugin_dir_url( __FILE__ ) . 'js/socket.js', array(
 					'jquery',
 					'wp-util',
-					'wp-api'
+					'wp-api',
+					'shortcode'
 				),
 					filemtime( plugin_dir_path( __FILE__ ) . 'js/socket.js' ), true );
 
@@ -178,8 +179,13 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 				),
 				'admin_url' => admin_url(),
 				'config'    => $this->config,
-				'values'    => $this->values
+				'values'    => $this->values,
+				'wp' => array(
+					'taxonomies' => get_taxonomies( array( 'show_in_rest' => true ), 'objects' ),
+					'post_types' =>get_post_types( array( 'show_in_rest' => true ), 'objects' )
+				)
 			);
+
 
 			wp_localize_script( $script, 'socket', $localized_data );
 		}
@@ -366,36 +372,12 @@ if ( ! class_exists( 'WP_Socket' ) ) {
  **/
 function rest_api_filter_add_filters() {
 	$post_types = get_post_types( array( 'show_in_rest' => true ), 'objects' );
-//var_dump($post_types);
+
 	foreach ( $post_types as $name => $post_type ) {
 		add_filter( 'rest_' . $name. '_query', 'rest_api_filter_add_filter_param', 10, 2 );
 	}
 }
 add_action( 'rest_api_init', 'rest_api_filter_add_filters', 11 );
-
-/**
- * Add REST API support to an already registered post type.
- */
-function my_custom_post_type_rest_support() {
-	global $wp_post_types, $wp_taxonomies;
-
-	//be sure to set this to the name of your post type!
-	$post_type_name = 'jetpack-portfolio';
-	if( isset( $wp_post_types[ $post_type_name ] ) ) {
-		$wp_post_types[$post_type_name]->show_in_rest = true;
-		$wp_post_types[$post_type_name]->rest_base = $post_type_name;
-		$wp_post_types[$post_type_name]->rest_controller_class = 'WP_REST_Posts_Controller';
-	}
-
-	//be sure to set this to the name of your post type!
-	$post_type_name = 'jetpack-testimonial';
-	if( isset( $wp_post_types[ $post_type_name ] ) ) {
-		$wp_post_types[$post_type_name]->show_in_rest = true;
-		$wp_post_types[$post_type_name]->rest_base = $post_type_name;
-		$wp_post_types[$post_type_name]->rest_controller_class = 'WP_REST_Posts_Controller';
-	}
-}
-add_action( 'init', 'my_custom_post_type_rest_support' );
 
 /**
  * Add the filter parameter

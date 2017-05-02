@@ -126,7 +126,13 @@ export default class SocketPostSelect extends React.Component {
 					{Object.keys(models).map(function ( i ) {
 						let model = models[i];
 
-						posts.push({ key: model.id, value: model.id.toString(), text: model.title.rendered });
+						var pre = '';
+
+						if ( model.parent > 0 ) {
+							pre = ' –– '
+						}
+
+						posts.push({ key: model.id, value: model.id.toString(), text: pre + model.title.rendered });
 					})}
 
 					component.setState( { posts: posts, loading: false } );

@@ -2,6 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom";
 import SocketPostSelect from "./postSelect.js";
 import SocketTaxSelect from "./taxSelect.js";
+import SocketGallery from "./gallery.js";
+
+wp.media.socketgallery = [];
 
 import {
 	Button,
@@ -78,7 +81,7 @@ class SocketDashboard extends React.Component {
 				var section_config = socket.config.sockets[grid_key];
 
 				// default grid sizes, doc this
-				var sizes = {...{computer: 8, tablet: 16}, ...section_config.sizes};
+				var sizes = {...{computer: 16, tablet: 16}, ...section_config.sizes};
 
 				var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet}
 				                           mobile={sizes.mobile}>
@@ -233,6 +236,12 @@ class SocketDashboard extends React.Component {
 												{ _.isEmpty(field.html) ? <Icon disabled name='code' /> : field.html }
 											</Divider>
 										</Form.Field>
+										break;
+									}
+
+									case 'gallery' : {
+										output = <SocketGallery key={field_key} name={field_key} value={value} field={field} placeholder={placeholder} setup_loading_flag={component.setup_loading_flag} />
+										break;
 									}
 
 									default:
@@ -242,8 +251,10 @@ class SocketDashboard extends React.Component {
 								if ( 'divider' === field.type ) {
 									return output
 								} else {
+									var desc = ( field.description ? <Label size="small" style={{ fontSize: 12}}>{field.description}</Label> : '' )
+
 									return <Segment  key={field_key} padded>
-										{( _.isUndefined( field.label ) ) ? null : <Label attached='top'>{field.label}</Label> }
+										{( _.isUndefined( field.label ) ) ? null : <Label attached='top' size="big">{field.label} {desc}</Label> }
 										{output}
 									</Segment>
 								}
