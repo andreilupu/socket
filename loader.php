@@ -193,6 +193,7 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 		function add_rest_routes_api() {
 			//The Following registers an api route with multiple parameters.
 			$route = 'socket';
+
 			register_rest_route( $this->api_base, '/option', array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_state' ),
@@ -212,7 +213,6 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 				'permission_callback' => array( $this, 'permission_nonce_callback' ),
 			) );
 		}
-
 
 		function permission_nonce_callback() {
 			$nonce = '';
