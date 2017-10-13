@@ -1,5 +1,7 @@
 // Required for browser compatibility.
-import "babel-polyfill";
+if (!global._babelPolyfill) {
+	require('babel-polyfill');
+}
 import 'whatwg-fetch';
 
 // Needed for onTouchTap
@@ -10,7 +12,7 @@ injectTapEventPlugin();
 import React from "react";
 import ReactDOM from "react-dom";
 
-// import PixelgradeCareNoSupportHere from './components/no_support.js';
+// import PixelgradeCareNoSupportHere from './components/no_support.js';;
 import SocketDashboard from './components/dashboard.js';
 
 ReactDOM.render(<SocketDashboard />, document.getElementById('socket_dashboard')  );

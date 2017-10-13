@@ -64120,6 +64120,73 @@ var SocketDashboard = function (_React$Component) {
 		// this makes the this
 
 
+		_this.tagsHandleAddition = function (e, _ref) {
+			var value = _ref.value;
+
+			var component = _this,
+			    componentNode = _reactDom2.default.findDOMNode(e.target),
+			    name = null;
+
+			// try to get the field name
+			if (typeof e.target.parentNode.dataset.field_key !== "undefined") {
+				name = e.target.parentNode.dataset.field_key;
+				// in case this is a tag removal, the field is on the ancestor
+			} else if (typeof e.target.parentNode.parentNode.dataset.field_key !== "undefined") {
+				name = e.target.parentNode.parentNode.dataset.field_key;
+			} else {
+				console.log('no name');
+				return;
+			}
+
+			if (typeof component.state.values[name] === "undefined") {
+				component.state.values[name] = [];
+			}
+
+			if (component.state.values[name].indexOf(value) !== -1) {
+				console.log('Value already exists');
+				return;
+			}
+
+			component.state.values[name] = value;
+
+			if (!_this.state.loading) {
+
+				_this.async_loading(function () {
+					jQuery.ajax({
+						url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
+						method: 'POST',
+						beforeSend: function beforeSend(xhr) {
+							xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+						},
+						data: {
+							'socket_nonce': socket.wp_rest.socket_nonce,
+							name: name,
+							value: component.state.values[name]
+						}
+					}).done(function (response) {
+						if (response.success) {
+							component.setState({
+								loading: false,
+								values: component.state.values
+							});
+						} else {
+							console.log(response);
+						}
+					}).error(function (err) {
+						component.setState({
+							loading: true
+						});
+					});
+				});
+			}
+		};
+
+		_this.handleChange = function (e, _ref2) {
+			var value = _ref2.value;
+
+			console.log(value);
+		};
+
 		_this.async_loading = function (cb) {
 			_this.setState({ loading: true }, function () {
 				_this.asyncTimer = setTimeout(cb, 500);
@@ -64171,6 +64238,7 @@ var SocketDashboard = function (_React$Component) {
 		_this.inputHandleChange = _this.inputHandleChange.bind(_this);
 		_this.checkboxHandleChange = _this.checkboxHandleChange.bind(_this);
 		_this.radioHandleChange = _this.radioHandleChange.bind(_this);
+		_this.tagsHandleAddition = _this.tagsHandleAddition.bind(_this);
 		_this.multicheckboxHandleChange = _this.multicheckboxHandleChange.bind(_this);
 		_this.clean_the_house = _this.clean_the_house.bind(_this);
 		_this.setup_loading_flag = _this.setup_loading_flag.bind(_this);
@@ -64235,7 +64303,6 @@ var SocketDashboard = function (_React$Component) {
 									_semanticUiReact.Form,
 									null,
 									Object.keys(section_config.items).map(function (field_key) {
-
 										var field = section_config.items[field_key],
 										    value = '';
 
@@ -64375,6 +64442,39 @@ var SocketDashboard = function (_React$Component) {
 															defaultValue: value,
 															options: dropDownOptions,
 															onChange: component.radioHandleChange })
+													);
+													break;
+												}
+
+											case 'tags':
+												{
+													var _dropDownOptions = [];
+													var defaultValues = [];
+
+													if (value !== '') {
+														{
+															Object.keys(value).map(function (key) {
+																var option = value[key];
+																_dropDownOptions.push({ key: option, value: option, text: option });
+																defaultValues.push(option);
+															});
+														}
+													}
+
+													output = _react2.default.createElement(
+														_semanticUiReact.Form.Field,
+														null,
+														_react2.default.createElement(_semanticUiReact.Divider, { inverted: true }),
+														_react2.default.createElement(_semanticUiReact.Dropdown, {
+															"data-field_key": field_key,
+															placeholder: placeholder,
+															search: true,
+															allowAdditions: true,
+															selection: true,
+															multiple: true,
+															options: _dropDownOptions,
+															value: defaultValues,
+															onChange: component.tagsHandleAddition })
 													);
 													break;
 												}
@@ -64671,14 +64771,6 @@ var SocketDashboard = function (_React$Component) {
 			}
 		}
 	}, {
-		key: "handleChange",
-		value: function handleChange(e) {
-
-			console.log(this);
-
-			console.debug(e.target.value);
-		}
-	}, {
 		key: "update_local_state",
 		value: function update_local_state($state) {
 			this.setState($state, function () {
@@ -64740,8 +64832,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// import _ from 'lodash'
-
 var SocketGallery = function (_React$Component) {
 	_inherits(SocketGallery, _React$Component);
 
@@ -64764,6 +64854,7 @@ var SocketGallery = function (_React$Component) {
 			if (typeof component.frame.socketbound === "undefined") {
 				component.frame.on('close', function () {
 					component.onclose(name);
+					component.frame = null;
 				});
 				component.frame.socketbound = true;
 			}
@@ -64790,6 +64881,7 @@ var SocketGallery = function (_React$Component) {
 		_this.init_media_modal = _this.init_media_modal.bind(_this);
 		_this.onclose = _this.onclose.bind(_this);
 		_this.getSelection = _this.getSelection.bind(_this);
+		_this.clearGallery = _this.clearGallery.bind(_this);
 
 		_this.init_media_modal();
 		return _this;
@@ -64813,59 +64905,106 @@ var SocketGallery = function (_React$Component) {
 
 			var ids = value;
 
-			console.log(ids);
-
 			output = _react2.default.createElement(
-				_semanticUiReact.Form.Field,
-				{ className: "gallery" },
+				"div",
+				null,
 				_react2.default.createElement(
-					_semanticUiReact.Grid,
-					{ onClick: component.handleOpen, style: { minHeight: 120, padding: '15px' } },
-					Object.keys(ids).map(function (i) {
-						var id = Number(ids[i]),
-						    attachment = wp.media.model.Attachment.get(id),
-						    url = '';
+					_semanticUiReact.Form.Field,
+					{ className: "gallery" },
+					_react2.default.createElement(
+						_semanticUiReact.Grid,
+						{ onClick: component.handleOpen, style: { minHeight: 120, padding: '15px' } },
+						Object.keys(ids).map(function (i) {
+							var id = Number(ids[i]),
+							    attachment = wp.media.model.Attachment.get(id),
+							    url = '';
 
-						if (typeof attachment.attributes.sizes === "undefined") {
-							return _react2.default.createElement(
-								_semanticUiReact.Grid.Column,
-								{
-									key: id },
-								_react2.default.createElement(
-									_semanticUiReact.Header,
-									{ as: "h3" },
-									"Select your images"
-								)
-							);
-						}
+							if (typeof attachment.attributes.sizes === "undefined") {
+								return _react2.default.createElement(
+									_semanticUiReact.Grid.Column,
+									{
+										key: id },
+									_react2.default.createElement(
+										_semanticUiReact.Header,
+										{ as: "h3" },
+										"Select your images"
+									)
+								);
+							}
 
-						if (_.isUndefined(attachment.attributes.sizes.thumbnail)) {
-							url = attachment.attributes.sizes.full.url;
-						} else {
-							url = attachment.attributes.sizes.thumbnail.url;
-						}
+							if (_.isUndefined(attachment.attributes.sizes.thumbnail)) {
+								url = attachment.attributes.sizes.full.url;
+							} else {
+								url = attachment.attributes.sizes.thumbnail.url;
+							}
 
-						if (typeof attachment.attributes.sizes !== "undefined") {
-							return _react2.default.createElement(
-								_semanticUiReact.Grid.Column,
-								{
-									key: id,
-									style: square,
-									color: "grey"
-								},
-								_react2.default.createElement(_semanticUiReact.Image, { src: url, size: "small", width: "150", centered: true }),
-								_react2.default.createElement(
-									_semanticUiReact.Header,
-									{ as: "h4", style: { position: 'absolute', bottom: '-25px' } },
-									attachment.attributes.title
-								)
-							);
-						}
-					})
-				)
+							if (typeof attachment.attributes.sizes !== "undefined") {
+								return _react2.default.createElement(
+									_semanticUiReact.Grid.Column,
+									{
+										key: id,
+										style: square,
+										color: "grey"
+									},
+									_react2.default.createElement(_semanticUiReact.Image, { src: url, size: "small", width: "150", centered: true }),
+									_react2.default.createElement(
+										_semanticUiReact.Header,
+										{ as: "h4", style: { position: 'absolute', bottom: '-25px' } },
+										attachment.attributes.title
+									)
+								);
+							}
+						})
+					)
+				),
+				_react2.default.createElement(_semanticUiReact.Popup, {
+					trigger: _react2.default.createElement(
+						_semanticUiReact.Button,
+						{ basic: true, circular: true, style: { top: '0', position: 'absolute', right: '0', height: '32px', margin: '9px', padding: '6px', textIndent: '2px' }, onClick: this.clearGallery },
+						_react2.default.createElement(
+							_semanticUiReact.Button.Content,
+							{ visible: true, style: { color: 'red' } },
+							_react2.default.createElement(_semanticUiReact.Icon, { name: "close" })
+						)
+					),
+					content: "Click here if you want to clean up"
+				})
 			);
-
 			return output;
+		}
+	}, {
+		key: "clearGallery",
+		value: function clearGallery(e) {
+			e.preventDefault();
+
+			var component = this,
+			    name = component.props.name;
+
+			component.props.setup_loading_flag(true);
+
+			component.setState({ value: [] });
+
+			setTimeout(function () {
+				jQuery.ajax({
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
+					method: 'POST',
+					beforeSend: function beforeSend(xhr) {
+						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+					},
+					data: {
+						'socket_nonce': socket.wp_rest.socket_nonce,
+						name: name,
+						value: component.state.value.join(',')
+					}
+				}).done(function (response) {
+					// let new_values = component.state.values;
+					console.log(response);
+					component.props.setup_loading_flag(false);
+				}).error(function (err) {
+					console.log(err);
+					component.props.setup_loading_flag(false);
+				});
+			}, 1000);
 		}
 	}, {
 		key: "onclose",
@@ -64901,12 +65040,9 @@ var SocketGallery = function (_React$Component) {
 		value: function componentWillMount() {
 			var component = this;
 
-			// console.debug( component );
-
 			if (_.isEmpty(component.state.attachments) && !_.isEmpty(component.state.value)) {
 				var attachments = [];
 				var res = component.getSelection(component.state.value.join(','));
-
 				// },500);
 				// just wait a sec
 				// setTimeout(function () {
@@ -64961,6 +65097,7 @@ var SocketGallery = function (_React$Component) {
 
 				close: function close(cb) {
 					cb();
+					wp.media.socketgallery = [];
 				},
 
 				update: function update() {
@@ -64978,11 +65115,11 @@ var SocketGallery = function (_React$Component) {
 				// Gets initial gallery-edit images. Function modified from wp.media.gallery.edit
 				// in wp-includes/js/media-editor.js.source.html
 				select: function select() {
-					var shortcode = wp.shortcode.next('gallery', '[gallery]'),
+					var shortcode = wp.shortcode.next('gallery', '[gallery ids="1"'),
 					    attachments,
 					    selection;
 
-					if (component.state.value) {
+					if (!_.isEmpty(component.state.value)) {
 						shortcode = wp.shortcode.next('gallery', '[gallery ids="' + component.state.value + '"]');
 					}
 
@@ -65017,11 +65154,11 @@ var SocketGallery = function (_React$Component) {
 		key: "getSelection",
 		value: function getSelection(idsString) {
 			var component = this,
-			    shortcode = wp.shortcode.next('gallery', '[gallery]'),
+			    shortcode = wp.shortcode.next('gallery', '[gallery ids="1"]'),
 			    attachments,
 			    selection;
 
-			if (component.state.value) {
+			if (!_.isEmpty(component.state.value)) {
 				shortcode = wp.shortcode.next('gallery', '[gallery ids="' + component.state.value + '"]');
 			}
 
@@ -65057,11 +65194,6 @@ var SocketGallery = function (_React$Component) {
 	return SocketGallery;
 }(_react2.default.Component);
 
-SocketGallery.propTypes = {
-	name: _propTypes2.default.string,
-	value: _propTypes2.default.string,
-	setup_loading_flag: _propTypes2.default.func
-};
 exports.default = SocketGallery;
 
 },{"prop-types":782,"react":940,"react-dom":784,"semantic-ui-react":1041}],1145:[function(require,module,exports){
@@ -65227,12 +65359,17 @@ var SocketPostSelect = function (_React$Component) {
 							var model = models[i];
 
 							var pre = '';
+							var title = pre + model.title.rendered;
 
 							if (model.parent > 0) {
 								pre = ' –– ';
 							}
 
-							posts.push({ key: model.id, value: model.id.toString(), text: pre + model.title.rendered });
+							if (_.isEmpty(model.title.rendered)) {
+								title = pre + '<No title!>';
+							}
+
+							posts.push({ key: model.id, value: model.id.toString(), text: title });
 						});
 					}
 
@@ -65451,9 +65588,8 @@ SocketTaxSelect.propTypes = {
 exports.default = SocketTaxSelect;
 
 },{"prop-types":782,"react":940,"react-dom":784,"semantic-ui-react":1041}],1147:[function(require,module,exports){
+(function (global){
 'use strict';
-
-require('babel-polyfill');
 
 require('whatwg-fetch');
 
@@ -65475,17 +65611,22 @@ var _dashboard2 = _interopRequireDefault(_dashboard);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-(0, _reactTapEventPlugin2.default)();
+// Required for browser compatibility.
+if (!global._babelPolyfill) {
+	require('babel-polyfill');
+}
 
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
-// Required for browser compatibility.
 
+(0, _reactTapEventPlugin2.default)();
 
-// import PixelgradeCareNoSupportHere from './components/no_support.js';
+// import PixelgradeCareNoSupportHere from './components/no_support.js';;
 
 
 _reactDom2.default.render(_react2.default.createElement(_dashboard2.default, null), document.getElementById('socket_dashboard'));
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{"./components/dashboard.js":1143,"babel-polyfill":1,"react":940,"react-dom":784,"react-tap-event-plugin":914,"whatwg-fetch":1142}]},{},[1147])
 

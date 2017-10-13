@@ -247,7 +247,7 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 
 				// a little sanitize
 				if ( is_array( $option_value ) ) {
-					$option_value = array_map( 'sanitize_text_field', $option_value );
+//					$option_value = array_map( 'sanitize_text_field', $option_value );
 				} else {
 					$option_value = sanitize_text_field($option_value);
 				}

@@ -41,6 +41,7 @@ class SocketDashboard extends React.Component {
 		this.inputHandleChange = this.inputHandleChange.bind(this);
 		this.checkboxHandleChange = this.checkboxHandleChange.bind(this);
 		this.radioHandleChange = this.radioHandleChange.bind(this);
+		this.tagsHandleAddition = this.tagsHandleAddition.bind(this);
 		this.multicheckboxHandleChange = this.multicheckboxHandleChange.bind(this);
 		this.clean_the_house = this.clean_the_house.bind(this);
 		this.setup_loading_flag = this.setup_loading_flag.bind(this);
@@ -90,7 +91,6 @@ class SocketDashboard extends React.Component {
 
 						<Form >
 							{ Object.keys(section_config.items).map(function (field_key) {
-
 								let field = section_config.items[field_key],
 									value = '';
 
@@ -208,6 +208,34 @@ class SocketDashboard extends React.Component {
 												defaultValue={value}
 												options={dropDownOptions}
 												onChange={component.radioHandleChange}/>
+										</Form.Field>
+										break;
+									}
+
+									case 'tags' : {
+										let dropDownOptions = [];
+										let defaultValues = [];
+
+										if ( value !== '' ) {
+											{Object.keys(value).map(function (key) {
+												let option = value[key]
+												dropDownOptions.push({key: option, value: option, text: option});
+												defaultValues.push(option)
+											})}
+										}
+
+										output = <Form.Field>
+											<Divider inverted/>
+											<Dropdown
+												data-field_key={field_key}
+												placeholder={placeholder}
+												search
+												allowAdditions
+												selection
+												multiple
+												options={dropDownOptions}
+												value={defaultValues}
+												onChange={component.tagsHandleAddition} />
 										</Form.Field>
 										break;
 									}
@@ -478,12 +506,67 @@ class SocketDashboard extends React.Component {
 
 	}
 
-	handleChange(e) {
+	tagsHandleAddition = (e, { value }) => {
+		let component = this,
+			componentNode = ReactDOM.findDOMNode(e.target),
+			name = null;
 
-		console.log(this);
+		// try to get the field name
+		if ( typeof e.target.parentNode.dataset.field_key !== "undefined" ) {
+			name = e.target.parentNode.dataset.field_key
+		// in case this is a tag removal, the field is on the ancestor
+		} else if ( typeof e.target.parentNode.parentNode.dataset.field_key !== "undefined" ) {
+			name = e.target.parentNode.parentNode.dataset.field_key
+		} else {
+			console.log('no name')
+			return;
+		}
 
-		console.debug(e.target.value);
+		if ( typeof component.state.values[name] === "undefined" ) {
+			component.state.values[name] = []
+		}
 
+		if ( component.state.values[name].indexOf( value ) !== -1 ) {
+			console.log('Value already exists')
+			return;
+		}
+
+		component.state.values[name] = value
+
+		if ( ! this.state.loading ) {
+
+			this.async_loading(() => {
+				jQuery.ajax({
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
+					method: 'POST',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+					},
+					data: {
+						'socket_nonce': socket.wp_rest.socket_nonce,
+						name: name,
+						value: component.state.values[name]
+					}
+				}).done(function (response) {
+					if ( response.success ) {
+						component.setState({
+							loading: false,
+							values: component.state.values
+						})
+					} else {
+						console.log(response)
+					}
+				}).error(function (err) {
+					component.setState({
+						loading: true,
+					})
+				})
+			})
+		}
+	}
+
+	handleChange = (e, { value }) => {
+		console.log(value);
 	}
 
 	async_loading = (cb) => {
