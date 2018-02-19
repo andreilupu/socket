@@ -1,0 +1,30 @@
+{
+  "name": "andreilupu/socket",
+  "description": "A Plug and Play Options Framework for WordPress Themes and Plugins",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/andreilupu/socket"
+    }
+  ],
+  "type": "library",
+  "version": "1.0.0",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/andreilupu/socket",
+  "authors": [
+    {
+      "name": "Andrei Lupu",
+      "email": "euthelup@gmail.com",
+      "homepage": "https://a.lupu.pro"
+    }
+  ],
+  "autoload": {
+    "files": [
+      "load.php"
+    ]
+  },
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://github.com/andreilupu/socket/issues"
+  }
+}

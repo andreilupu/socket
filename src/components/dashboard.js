@@ -7,6 +7,7 @@ import SocketGallery from "./gallery.js";
 wp.media.socketgallery = [];
 
 import {
+	Accordion,
 	Button,
 	Checkbox,
 	Container,
@@ -34,10 +35,12 @@ class SocketDashboard extends React.Component {
 		// get the current state localized by wordpress
 		this.state = {
 			loading: false,
+			activeIndex: 0,
 			values: socket.values,
 		};
 
 		this.handleChange = this.handleChange.bind(this);
+		this.handleClick = this.handleClick.bind(this);
 		this.inputHandleChange = this.inputHandleChange.bind(this);
 		this.checkboxHandleChange = this.checkboxHandleChange.bind(this);
 		this.radioHandleChange = this.radioHandleChange.bind(this);
@@ -49,6 +52,10 @@ class SocketDashboard extends React.Component {
 
 	render() {
 		let component = this;
+
+		let activeIndex = this.state.activeIndex;
+
+		console.log(activeIndex);
 
 		return <Segment>
 
@@ -70,11 +77,10 @@ class SocketDashboard extends React.Component {
 						<Divider horizontal inverted>Saving ... wait a second</Divider>
 					</Dimmer>
 				</div>
-				:
-				''
+				: ''
 			}
 
-			<Grid>{ Object.keys(socket.config.sockets).map(function (grid_key) {
+			<Grid>{ Object.keys(socket.config.sockets).map(function (grid_key, index) {
 				if (typeof grid_key === "undefined") {
 					return false;
 				}
@@ -82,13 +88,16 @@ class SocketDashboard extends React.Component {
 				var section_config = socket.config.sockets[grid_key];
 
 				// default grid sizes, doc this
-				var sizes = {...{computer: 16, tablet: 16}, ...section_config.sizes};
+				//var sizes = {...{computer: 16, tablet: 16}, ...section_config.sizes};
 
-				var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet}
-				                           mobile={sizes.mobile}>
-					<Segment>
-						<Header as='h2' key={grid_key} content={section_config.label} subheader={section_config.desc}/>
-
+				//var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet} mobile={sizes.mobile}>
+				var section = <Accordion fluid styled key={grid_key}>
+					<Accordion.Title active={activeIndex === index} onClick={() => component.handleClick(index)}>
+						<Icon name='dropdown' />
+						{section_config.label}
+						<p>{section_config.desc}</p>
+					</Accordion.Title>
+					<Accordion.Content active={activeIndex === index}>
 						<Form >
 							{ Object.keys(section_config.items).map(function (field_key) {
 								let field = section_config.items[field_key],
@@ -288,8 +297,8 @@ class SocketDashboard extends React.Component {
 								}
 							})}
 						</Form>
-					</Segment>
-				</Grid.Column>
+					</Accordion.Content>
+				</Accordion>
 
 				return section
 			}) }
@@ -300,6 +309,14 @@ class SocketDashboard extends React.Component {
 				<Button basic color="red" onClick={this.clean_the_house}>Reset</Button>
 			</Segment>
 		</Segment>
+	}
+
+	handleClick = (key) => {
+		if ( this.state.activeIndex === key ) {
+			this.setState({ activeIndex: -1 })
+		} else {
+			this.setState({ activeIndex: key })
+		}
 	}
 
 	validate_options_for_checkboxes(value) {
