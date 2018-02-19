@@ -13,7 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( 'WP_Socket' ) ) {
 
 	class WP_Socket {
-
 		private $config;
 
 		private $values;
@@ -33,7 +32,7 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 		public function __construct( $args ) {
 
 			if ( empty( $args['api_base'] ) || empty( $args['plugin'] ) ) {
-				return ;
+				return;
 			}
 
 			$this->plugin = $args['plugin'];
@@ -102,12 +101,13 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 
 		function socket_options_page() {
 			$state = $this->get_option( 'state' ); ?>
-			<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
+			<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css"></link>
 			<div class="wrap">
 				<div class="socket-wrapper">
 					<header class="title">
 						<h1 class="page-title"><?php echo $this->page_title ?></h1>
-<!--						<div class="description">--><?php //echo $this->description ?><!--</div>-->
+						<!--						<div class="description">-->
+						<?php //echo $this->description ?><!--</div>-->
 					</header>
 					<div class="content">
 						<div id="socket_dashboard"></div>
@@ -155,13 +155,12 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 
 				wp_enqueue_media();
 
-				wp_enqueue_script( 'socket-dashboard', plugin_dir_url( __FILE__ ) . 'js/socket.js', array(
+				wp_enqueue_script( 'socket-dashboard', plugin_dir_url( __FILE__ ) . 'dist/socket.js', array(
 					'jquery',
 					'wp-util',
 					'wp-api',
 					'shortcode'
-				),
-					filemtime( plugin_dir_path( __FILE__ ) . 'js/socket.js' ), true );
+				), filemtime( plugin_dir_path( __FILE__ ) . 'dist/socket.js' ), true );
 
 				$this->localize_js_data( 'socket-dashboard' );
 			}
@@ -180,12 +179,11 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 				'admin_url' => admin_url(),
 				'config'    => $this->config,
 				'values'    => $this->values,
-				'wp' => array(
+				'wp'        => array(
 					'taxonomies' => get_taxonomies( array( 'show_in_rest' => true ), 'objects' ),
-					'post_types' =>get_post_types( array( 'show_in_rest' => true ), 'objects' )
+					'post_types' => get_post_types( array( 'show_in_rest' => true ), 'objects' )
 				)
 			);
-
 
 			wp_localize_script( $script, 'socket', $localized_data );
 		}
@@ -249,7 +247,7 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 				if ( is_array( $option_value ) ) {
 //					$option_value = array_map( 'sanitize_text_field', $option_value );
 				} else {
-					$option_value = sanitize_text_field($option_value);
+					$option_value = sanitize_text_field( $option_value );
 				}
 				$this->values[ $option_name ] = $option_value;
 			}
@@ -365,42 +363,45 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 			return $result;
 		}
 	}
-}
 
-/**
- * Add the necessary filter to each post type
- **/
-function rest_api_filter_add_filters() {
-	$post_types = get_post_types( array( 'show_in_rest' => true ), 'objects' );
+	/**
+	 * Add the necessary filter to each post type
+	 **/
+	function rest_api_filter_add_filters() {
+		$post_types = get_post_types( array( 'show_in_rest' => true ), 'objects' );
 
-	foreach ( $post_types as $name => $post_type ) {
-		add_filter( 'rest_' . $name. '_query', 'rest_api_filter_add_filter_param', 10, 2 );
-	}
-}
-add_action( 'rest_api_init', 'rest_api_filter_add_filters', 11 );
-
-/**
- * Add the filter parameter
- *
- * @param  array           $args    The query arguments.
- * @param  WP_REST_Request $request Full details about the request.
- * @return array $args.
- **/
-function rest_api_filter_add_filter_param( $args, $request ) {
-	// Bail out if no filter parameter is set.
-	if ( empty( $request['filter'] ) || ! is_array( $request['filter'] ) ) {
-		return $args;
-	}
-	$filter = $request['filter'];
-	if ( isset( $filter['per_page'] ) && ( (int) $filter['per_page'] >= 1 && (int) $filter['per_page'] <= 100 ) ) {
-		$args['post_per_page'] = $filter['per_page'];
-	}
-	global $wp;
-	$vars = apply_filters( 'query_vars', $wp->public_query_vars );
-	foreach ( $vars as $var ) {
-		if ( isset( $filter[ $var ] ) ) {
-			$args[ $var ] = $filter[ $var ];
+		foreach ( $post_types as $name => $post_type ) {
+			add_filter( 'rest_' . $name . '_query', 'rest_api_filter_add_filter_param', 10, 2 );
 		}
 	}
-	return $args;
+
+	add_action( 'rest_api_init', 'rest_api_filter_add_filters', 11 );
+
+	/**
+	 * Add the filter parameter
+	 *
+	 * @param  array $args The query arguments.
+	 * @param  WP_REST_Request $request Full details about the request.
+	 *
+	 * @return array $args.
+	 **/
+	function rest_api_filter_add_filter_param( $args, $request ) {
+		// Bail out if no filter parameter is set.
+		if ( empty( $request['filter'] ) || ! is_array( $request['filter'] ) ) {
+			return $args;
+		}
+		$filter = $request['filter'];
+		if ( isset( $filter['per_page'] ) && ( (int) $filter['per_page'] >= 1 && (int) $filter['per_page'] <= 100 ) ) {
+			$args['post_per_page'] = $filter['per_page'];
+		}
+		global $wp;
+		$vars = apply_filters( 'query_vars', $wp->public_query_vars );
+		foreach ( $vars as $var ) {
+			if ( isset( $filter[ $var ] ) ) {
+				$args[ $var ] = $filter[ $var ];
+			}
+		}
+
+		return $args;
+	}
 }

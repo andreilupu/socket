@@ -1,9 +1,7 @@
 {
-  "plugins": ["transform-react-jsx"],
-  "presets": ["es2015", "stage-0", "react"],
-  "env": {
-    "production": {
-      "presets": ["babili", "react-optimize"]
-    }
-  }
+  "presets": ["es2017", "stage-1", "react"],
+  "plugins": [
+    "react-hot-loader/babel",
+    ["import", { "libraryName": "antd", "libraryDirectory": "es", "style": "true" }] // `style: true` for less
+  ]
 }

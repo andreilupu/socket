@@ -24,7 +24,7 @@ import {
 	Radio,
 	Segment,
 	Text,
-} from 'semantic-ui-react'
+} from 'semantic-ui-react';
 
 class SocketDashboard extends React.Component {
 
@@ -311,7 +311,7 @@ class SocketDashboard extends React.Component {
 		</Segment>
 	}
 
-	handleClick = (key) => {
+	handleClick (key) {
 		if ( this.state.activeIndex === key ) {
 			this.setState({ activeIndex: -1 })
 		} else {
@@ -523,7 +523,7 @@ class SocketDashboard extends React.Component {
 
 	}
 
-	tagsHandleAddition = (e, { value }) => {
+	tagsHandleAddition (e, { value }) {
 		let component = this,
 			componentNode = ReactDOM.findDOMNode(e.target),
 			name = null;
@@ -582,11 +582,11 @@ class SocketDashboard extends React.Component {
 		}
 	}
 
-	handleChange = (e, { value }) => {
+	handleChange (e, { value }) {
 		console.log(value);
 	}
 
-	async_loading = (cb) => {
+	async_loading (cb) {
 		this.setState({loading: true}, () => {
 			this.asyncTimer = setTimeout(cb, 500);
 		});
@@ -610,7 +610,7 @@ class SocketDashboard extends React.Component {
 		});
 	}
 
-	add_notices = (state) => {
+	add_notices (state) {
 		var notices = [];
 		return notices;
 	}
@@ -619,7 +619,7 @@ class SocketDashboard extends React.Component {
 		this.setState( { loading: $val })
 	}
 
-	clean_the_house = () => {
+	clean_the_house () {
 		let component = this,
 			test1 = Math.floor((Math.random() * 10) + 1),
 			test2 = Math.floor((Math.random() * 10) + 1),

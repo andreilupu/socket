@@ -1,17 +1,11 @@
-import React from "react"
-import ReactDOM from "react-dom"
-import PropTypes from 'prop-types'
+import React from "react";
+import PropTypes from 'prop-types';
 import {
 	Dropdown,
 	Form
-} from 'semantic-ui-react'
+} from 'semantic-ui-react';
 
-export default class SocketTaxSelect extends React.Component {
-	static propTypes = {
-		name: PropTypes.string,
-		value: PropTypes.array,
-		setup_loading_flag: PropTypes.func
-	}
+class SocketTaxSelect extends React.Component {
 
 	constructor(props) {
 		// this makes the this
@@ -27,6 +21,8 @@ export default class SocketTaxSelect extends React.Component {
 		};
 
 		this.handleClose = this.handleClose.bind(this);
+		this.handleOpen = this.handleOpen.bind(this);
+		this.handleChange = this.handleChange.bind(this);
 	}
 
 	render() {
@@ -58,24 +54,24 @@ export default class SocketTaxSelect extends React.Component {
 		return output;
 	}
 
-	handleChange = (e, { value }) => {
+	handleChange (e, { value }) {
 		this.setState({ value });
 	}
 
-	handleOpen = (e) => {
-		this.state.value_on_open = this.state.value;
+	handleOpen (e) {
+		this.setState({value_on_open: this.state.value});
 	}
 
 	// on close we want to save the data
 	handleClose(e){
 		let component = this,
-			value = this.state.value
+			value = this.state.value;
 
 		if ( value === component.state.value_on_open ) {
 			return;
 		}
 
-		component.props.setup_loading_flag( true )
+		component.props.setup_loading_flag( true );
 
 		jQuery.ajax({
 			url: socket.wp_rest.root + socket.wp_rest.api_base +  '/option',
@@ -152,3 +148,11 @@ export default class SocketTaxSelect extends React.Component {
 		});
 	}
 }
+
+SocketTaxSelect.propTypes = {
+	name: PropTypes.string,
+	value: PropTypes.array,
+	setup_loading_flag: PropTypes.func
+};
+
+export default SocketTaxSelect
