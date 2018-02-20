@@ -66,23 +66,23 @@ if ( ! class_exists( 'WP_Socket' ) ) {
 			$this->set_defaults( $this->config );
 		}
 
-		/**
-		 * Cloning is forbidden.
-		 *
-		 * @since 1.0.0
-		 */
-		public function __clone() {
-			_doing_it_wrong( __FUNCTION__, esc_html( __( 'Cheatin&#8217; huh?' ) ), esc_html( $this->_version ) );
-		} // End __clone ()
-
-		/**
-		 * Unserializing instances of this class is forbidden.
-		 *
-		 * @since 1.0.0
-		 */
-		public function __wakeup() {
-			_doing_it_wrong( __FUNCTION__, esc_html( __( 'Cheatin&#8217; huh?' ) ), esc_html( $this->_version ) );
-		} // End __wakeup ()
+//		/**
+//		 * Cloning is forbidden.
+//		 *
+//		 * @since 1.0.0
+//		 */
+//		public function __clone() {
+//			_doing_it_wrong( __FUNCTION__, esc_html( __( 'Cheatin&#8217; huh?' ) ), esc_html( $this->_version ) );
+//		} // End __clone ()
+//
+//		/**
+//		 * Unserializing instances of this class is forbidden.
+//		 *
+//		 * @since 1.0.0
+//		 */
+//		public function __wakeup() {
+//			_doing_it_wrong( __FUNCTION__, esc_html( __( 'Cheatin&#8217; huh?' ) ), esc_html( $this->_version ) );
+//		} // End __wakeup ()
 
 		// Register a settings page
 		function add_admin_menu() {

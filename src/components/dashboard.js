@@ -44,6 +44,7 @@ class SocketDashboard extends React.Component {
 		this.inputHandleChange = this.inputHandleChange.bind(this);
 		this.checkboxHandleChange = this.checkboxHandleChange.bind(this);
 		this.radioHandleChange = this.radioHandleChange.bind(this);
+		this.selectHandleChange = this.selectHandleChange.bind(this);
 		this.tagsHandleAddition = this.tagsHandleAddition.bind(this);
 		this.multicheckboxHandleChange = this.multicheckboxHandleChange.bind(this);
 		this.clean_the_house = this.clean_the_house.bind(this);
@@ -57,8 +58,7 @@ class SocketDashboard extends React.Component {
 
 		console.log(activeIndex);
 
-		return <Segment>
-
+		return <div>
 			{ ( component.state.loading === true ) ?
 				<div style={{"position": 'absolute', "top": 0, "bottom": 0, "right": 0, "left": 0}}>
 					<Dimmer active inverted>
@@ -79,25 +79,24 @@ class SocketDashboard extends React.Component {
 				</div>
 				: ''
 			}
-
 			<Grid>{ Object.keys(socket.config.sockets).map(function (grid_key, index) {
 				if (typeof grid_key === "undefined") {
 					return false;
 				}
 
-				var section_config = socket.config.sockets[grid_key];
+				const section_config = socket.config.sockets[grid_key];
 
 				// default grid sizes, doc this
 				//var sizes = {...{computer: 16, tablet: 16}, ...section_config.sizes};
 
 				//var section = <Grid.Column key={grid_key} computer={sizes.computer} tablet={sizes.tablet} mobile={sizes.mobile}>
-				var section = <Accordion fluid styled key={grid_key}>
+				const section = <Accordion fluid styled key={grid_key} style={{ backgroundColor: '#ebebeb', margin: '5px 0'}}>
 					<Accordion.Title active={activeIndex === index} onClick={() => component.handleClick(index)}>
 						<Icon name='dropdown' />
 						{section_config.label}
 						<p>{section_config.desc}</p>
 					</Accordion.Title>
-					<Accordion.Content active={activeIndex === index}>
+					<Accordion.Content active={activeIndex === index}  style={{ backgroundColor: '#fff' }}>
 						<Form >
 							{ Object.keys(section_config.items).map(function (field_key) {
 								let field = section_config.items[field_key],
@@ -204,20 +203,27 @@ class SocketDashboard extends React.Component {
 
 									case 'select' : {
 										let dropDownOptions = [];
+										let multiple = false;
 
 										{Object.keys(field.options).map(function (opt) {
 											dropDownOptions.push({key: opt, value: opt, text: field.options[opt]});
 										})}
 
+										if ( typeof field.multiple !== "undefined" && field.multiple ) {
+											multiple = true;
+										}
+
 										output = <Form.Field>
 											<Dropdown
 												placeholder={placeholder}
 												search
+												multiple={multiple}
 												selection
+												data-name={field_key}
 												defaultValue={value}
 												options={dropDownOptions}
-												onChange={component.radioHandleChange}/>
-										</Form.Field>
+												onChange={component.selectHandleChange}/>
+										</Form.Field>;
 										break;
 									}
 
@@ -245,7 +251,7 @@ class SocketDashboard extends React.Component {
 												options={dropDownOptions}
 												value={defaultValues}
 												onChange={component.tagsHandleAddition} />
-										</Form.Field>
+										</Form.Field>;
 										break;
 									}
 
@@ -272,7 +278,7 @@ class SocketDashboard extends React.Component {
 											<Divider horizontal>
 												{ _.isEmpty(field.html) ? <Icon disabled name='code' /> : field.html }
 											</Divider>
-										</Form.Field>
+										</Form.Field>;
 										break;
 									}
 
@@ -288,7 +294,7 @@ class SocketDashboard extends React.Component {
 								if ( 'divider' === field.type ) {
 									return output
 								} else {
-									var desc = ( field.description ? <Label size="small" style={{ fontSize: 12}}>{field.description}</Label> : '' )
+									let desc = ( field.description ? <Label size="small" style={{ fontSize: 12}}>{field.description}</Label> : '' );
 
 									return <Segment  key={field_key} padded>
 										{( _.isUndefined( field.label ) ) ? null : <Label attached='top' size="big">{field.label} {desc}</Label> }
@@ -298,9 +304,9 @@ class SocketDashboard extends React.Component {
 							})}
 						</Form>
 					</Accordion.Content>
-				</Accordion>
+				</Accordion>;
 
-				return section
+				return section;
 			}) }
 			</Grid>
 
@@ -308,7 +314,7 @@ class SocketDashboard extends React.Component {
 				<h3>Debug Tools</h3>
 				<Button basic color="red" onClick={this.clean_the_house}>Reset</Button>
 			</Segment>
-		</Segment>
+		</div>
 	}
 
 	handleClick (key) {
@@ -383,6 +389,50 @@ class SocketDashboard extends React.Component {
 			}
 
 		}, 1000);
+	}
+
+
+
+	selectHandleChange(e, data) {
+		let component = this;
+
+		let name = data['data-name'];
+
+		let value = data.value;
+
+		if (!this.state.loading) {
+
+			this.async_loading(() => {
+
+				jQuery.ajax({
+					url: socket.wp_rest.root + socket.wp_rest.api_base + '/option',
+					method: 'POST',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('X-WP-Nonce', socket.wp_rest.nonce);
+					},
+					data: {
+						'socket_nonce': socket.wp_rest.socket_nonce,
+						name: name,
+						value: value
+					}
+				}).done(function (response) {
+
+					let new_values = component.state.values;
+
+					new_values[name] = value;
+
+					component.setState({
+						loading: false,
+						values: new_values
+					});
+
+				}).error(function (err) {
+					component.setState({
+						loading: true,
+					});
+				});
+			});
+		}
 	}
 
 	radioHandleChange(e) {
